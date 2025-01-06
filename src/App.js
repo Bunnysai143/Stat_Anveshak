@@ -5,7 +5,9 @@ import CoreStatistics from "./components/CoreStatistics";
 import ChartGenerator from "./components/ChartGenerator";
 import DistributionAnalysis from "./components/DistributionAnalysis"; // New component for distribution
 import "./styles/App.css";
-import InferentialStatisticsVisualiser from "./components/InferentialStatistics";
+import InferentialStatistics from "./components/InferentialStatistics";
+import TimeSeriesAnalysis from "./components/TimeSeriesAnalysis";
+
 
 function App() {
   const [data, setData] = useState([]);
@@ -48,12 +50,21 @@ function App() {
             >
               Distribution Analysis
             </button>
+
             <button
               className="navbar-button"
-              onClick={() => setSelectedComponent("InferentialStatistics")} // New button for inferential statistics
+              onClick={() => setSelectedComponent("InferentialStatistics")} // New button for distribution
             >
-              Inferential Statistics
+              InferentialStatistics
+            
             </button>
+            <button
+              className="navbar-button"
+              onClick={() => setSelectedComponent("TimeSeriesAnalysis")}
+            >
+              Time Series Analysis
+            </button>
+
           </div>
         </div>
       </nav>
@@ -79,11 +90,15 @@ function App() {
         {selectedComponent === "DistributionAnalysis" && (
           <DistributionAnalysis data={data} columnHeaders={columnHeaders} />
         )}
-
-        {/* Inferential Statistics */}
-        {selectedComponent === "InferentialStatistics" && (
-          <InferentialStatisticsVisualiser data={data} columnHeaders={columnHeaders} />
+        {/* {InferentialStatistics} */}
+        {
+          selectedComponent === "InferentialStatistics"  && (
+            <InferentialStatistics data={data} columnHeaders={columnHeaders} />
+          )}
+         {selectedComponent === "TimeSeriesAnalysis" && (
+          <TimeSeriesAnalysis data={data} columnHeaders={columnHeaders} />
         )}
+
       </div>
     </div>
   );
