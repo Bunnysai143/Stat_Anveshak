@@ -1,16 +1,21 @@
 import React from "react";
 
 const RawDataTable = ({ data, columnHeaders, setData }) => {
+  // Handle cell edits to update the data
   const handleCellEdit = (rowIndex, colIndex, value) => {
     const updatedData = [...data];
     updatedData[rowIndex][colIndex] = value;
-    setData(updatedData);
+    setData(updatedData);  // Update the data state
   };
 
   return (
     <table className="striped responsive-table">
       <thead>
-        <tr>{columnHeaders.map((header) => <th key={header}>{header}</th>)}</tr>
+        <tr>
+          {columnHeaders.map((header, colIndex) => (
+            <th key={colIndex}>{header}</th>
+          ))}
+        </tr>
       </thead>
       <tbody>
         {data.map((row, rowIndex) => (
