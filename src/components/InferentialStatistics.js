@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import "../styles/InferentialStatistics.css";
 
 ChartJS.register(
   CategoryScale,

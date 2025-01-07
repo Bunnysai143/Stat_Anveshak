@@ -1,6 +1,6 @@
-// FileUploader.js
 import React, { useState } from "react";
 import * as XLSX from "xlsx";
+import "../styles/FileUpload.css";
 
 const FileUploader = ({ onFileUpload }) => {
   const [fileData, setFileData] = useState(null); // Store file data
@@ -8,7 +8,7 @@ const FileUploader = ({ onFileUpload }) => {
   const [columnHeaders, setColumnHeaders] = useState([]);
 
   const handleFileUpload = (e) => {
-    const file = e.target.files[0];  // Get the selected file
+    const file = e.target.files[0]; // Get the selected file
     if (!file) {
       console.error("No file selected.");
       return;
@@ -20,15 +20,15 @@ const FileUploader = ({ onFileUpload }) => {
         const workbook = XLSX.read(new Uint8Array(event.target.result), {
           type: "array",
         });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];  // Get the first sheet
-        const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });  // Convert the sheet to JSON
-        const columnHeaders = rawData[0];  // First row is the column headers
-        const data = rawData.slice(1);  // The rest is the actual data
+        const sheet = workbook.Sheets[workbook.SheetNames[0]]; // Get the first sheet
+        const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Convert the sheet to JSON
+        const columnHeaders = rawData[0]; // First row is the column headers
+        const data = rawData.slice(1); // The rest is the actual data
 
         setData(data);
         setColumnHeaders(columnHeaders);
-        setFileData(file);  // Store the original file
-        onFileUpload(data, columnHeaders);  // Send data to parent component
+        setFileData(file); // Store the original file
+        onFileUpload(data, columnHeaders); // Send data to parent component
       } catch (error) {
         console.error("Error reading the file:", error);
       }
@@ -48,19 +48,28 @@ const FileUploader = ({ onFileUpload }) => {
   };
 
   return (
-    <div className="file-upload-container">
-      <label htmlFor="file-upload" className="file-upload-link">
-        Upload File
-      </label>
-      <input
-        type="file"
-        id="file-upload"
-        accept=".xlsx,.xls"
-        onChange={handleFileUpload}
-        style={{ display: "none" }}
-      />
-      
-      {/* Display the upload button */}
+    <div
+      className={`file-upload-container ${
+        fileData ? "upload-success" : ""
+      }`}
+    >
+      {/* Conditionally render the upload button */}
+      {!fileData && (
+        <>
+          <label htmlFor="file-upload" className="file-upload-link">
+            Upload File
+          </label>
+          <input
+            type="file"
+            id="file-upload"
+            // accept=".xlsx,.xls"
+            onChange={handleFileUpload}
+            style={{ display: "none" }}
+          />
+        </>
+      )}
+
+      {/* Display the export button when a file is uploaded */}
       {fileData && (
         <button className="upload-btn" onClick={handleExport}>
           Export Modified Data

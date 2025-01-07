@@ -6,6 +6,7 @@
   margin: 20px;
   padding: 20px;
   border-radius: 12px;
+
   background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.1);
 }
