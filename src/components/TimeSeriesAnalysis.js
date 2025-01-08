@@ -565,7 +565,7 @@ function TimeSeriesAnalysis({ data, columnHeaders }) {
                   <li><b>ARIMA (AutoRegressive Integrated Moving Average):</b> A popular forecasting model that combines autoregression, differencing, and moving average techniques.</li>
                 </ul>
               </p>
-              <button onClick={() => setShowSelectors(true)}>Start Time Series Analysis</button>
+              <button className="start-time" onClick={() => setShowSelectors(true)}>Start Time Series Analysis</button>
             </>
           ) : (
             <>

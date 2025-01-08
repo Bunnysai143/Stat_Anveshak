@@ -10,7 +10,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px;
+    padding-left: 35px;
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -60,7 +60,7 @@ body {
   .chart-container {
     width: 100%;
     max-width: 800px;
-    height: 400px;
+    /* height: 400px; */
     margin-bottom: 20px;
   }
   
@@ -125,12 +125,26 @@ body {
   button {
     background-color: #0066cc;
     color: white;
+    /* margin-top: 100px; */
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
     margin-bottom: 20px;
+  }
+
+  .start-time{
+    background-color: #0066cc;
+    color: white;
+    margin-top: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-bottom: 20px;
+
   }
   
   button:hover {

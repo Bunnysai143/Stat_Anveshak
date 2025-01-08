@@ -27,94 +27,100 @@ function App() {
 
   return (
     <div>
-      {/* Navbar */}
-      <nav className="navbar">
-        <div className="navbar-container">
-          {/* File Upload */}
-          <div className="navbar-links">
-            <button
-              className="navbar-button"
-              onClick={() => setSelectedComponent("RawDataTable")}
-            >
-              File Upload
-            </button>
-            <button
-              className="navbar-button"
-              onClick={() => setSelectedComponent("CoreStatistics")}
-            >
-              Core Statistics
-            </button>
-            <button
-              className="navbar-button"
-              onClick={() => setSelectedComponent("ChartGenerator")}
-            >
-              Chart Generator
-            </button>
-            <button
-              className="navbar-button"
-              onClick={() => setSelectedComponent("DistributionAnalysis")} // New button for distribution
-            >
-              Distribution Analysis
-            </button>
-
-            <button
-              className="navbar-button"
-              onClick={() => setSelectedComponent("InferentialStatistics")} // New button for distribution
-            >
-              InferentialStatistics
-            </button>
-            <button
-              className="navbar-button"
-              onClick={() => setSelectedComponent("TimeSeriesAnalysis")}
-            >
-              Time Series Analysis
-            </button>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <div className="main-content">
-        {/* Raw Data Table (Automatically appears after file upload) */}
-        {selectedComponent === "RawDataTable" && (
+      {/* File Uploader at the very start */}
+      {data.length === 0 && (
+        <div className="file-uploader-section">
+          <h1>Welcome To Stat Anveshak! Please Upload Your File</h1>
           <FileUploader onFileUpload={handleFileUpload} />
-        )}
+        </div>
+      )}
 
-        {/* Raw Data Table (Automatically appears after file upload) */}
-        {selectedComponent === "RawDataTable" && data.length > 0 && (
-          <RawDataTable data={data} columnHeaders={columnHeaders} setData={setData} />
-        )}
+      {/* Show the rest of the app only after file is uploaded */}
+      {data.length > 0 && (
+        <>
+          {/* Navbar */}
+          <nav className="navbar">
+            <div className="navbar-container">
+              <div className="navbar-links">
+                <button
+                  className="navbar-button"
+                  onClick={() => setSelectedComponent("RawDataTable")}
+                >
+                  Raw Data Table
+                </button>
+                <button
+                  className="navbar-button"
+                  onClick={() => setSelectedComponent("CoreStatistics")}
+                >
+                  Core Statistics
+                </button>
+                <button
+                  className="navbar-button"
+                  onClick={() => setSelectedComponent("ChartGenerator")}
+                >
+                  Chart Generator
+                </button>
+                <button
+                  className="navbar-button"
+                  onClick={() => setSelectedComponent("DistributionAnalysis")} // New button for distribution
+                >
+                  Distribution Analysis
+                </button>
+                <button
+                  className="navbar-button"
+                  onClick={() => setSelectedComponent("InferentialStatistics")}
+                >
+                  Inferential Statistics
+                </button>
+                <button
+                  className="navbar-button"
+                  onClick={() => setSelectedComponent("TimeSeriesAnalysis")}
+                >
+                  Time Series Analysis
+                </button>
+              </div>
+            </div>
+          </nav>
 
-        {/* Core Statistics */}
-        {selectedComponent === "CoreStatistics" && (
-          <CoreStatistics
-            data={data}
-            columnHeaders={columnHeaders}
-            selectedColumn={selectedColumn}
-            onColumnSelect={onColumnSelect} // Pass down onColumnSelect to handle column change
-          />
-        )}
+          {/* Main Content */}
+          <div className="main-content">
+            {/* Raw Data Table */}
+            {selectedComponent === "RawDataTable" && (
+              <RawDataTable data={data} columnHeaders={columnHeaders} setData={setData} />
+            )}
 
-        {/* Chart Generator */}
-        {selectedComponent === "ChartGenerator" && (
-          <ChartGenerator data={data} columnHeaders={columnHeaders} />
-        )}
+            {/* Core Statistics */}
+            {selectedComponent === "CoreStatistics" && (
+              <CoreStatistics
+                data={data}
+                columnHeaders={columnHeaders}
+                selectedColumn={selectedColumn}
+                onColumnSelect={onColumnSelect} // Pass down onColumnSelect to handle column change
+              />
+            )}
 
-        {/* Distribution Analysis */}
-        {selectedComponent === "DistributionAnalysis" && (
-          <DistributionAnalysis data={data} columnHeaders={columnHeaders} />
-        )}
+            {/* Chart Generator */}
+            {selectedComponent === "ChartGenerator" && (
+              <ChartGenerator data={data} columnHeaders={columnHeaders} />
+            )}
 
-        {/* Inferential Statistics */}
-        {selectedComponent === "InferentialStatistics" && (
-          <InferentialStatistics data={data} columnHeaders={columnHeaders} />
-        )}
+            {/* Distribution Analysis */}
+            {selectedComponent === "DistributionAnalysis" && (
+              <DistributionAnalysis data={data} columnHeaders={columnHeaders} />
+            )}
 
-        {/* Time Series Analysis */}
-        {selectedComponent === "TimeSeriesAnalysis" && (
-          <TimeSeriesAnalysis data={data} columnHeaders={columnHeaders} />
-        )}
-      </div>
+            {/* Inferential Statistics */}
+            {selectedComponent === "InferentialStatistics" && (
+              <InferentialStatistics data={data} columnHeaders={columnHeaders} />
+            )}
+
+            {/* Time Series Analysis */}
+            {selectedComponent === "TimeSeriesAnalysis" && (
+              <TimeSeriesAnalysis data={data} columnHeaders={columnHeaders} />
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

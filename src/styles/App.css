@@ -149,6 +149,76 @@ body {
   display: none;
 }
 
+/* Base Styling for the File Uploader Section */
+.file-uploader-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #6e00ff, #3500d3);
+  padding: 20px;
+  color: #fff;
+  text-align: center;
+}
+
+.file-uploader-section h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #ffffff;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Styling for the File Uploader Box */
+.file-uploader-section .file-uploader {
+  width: 90%;
+  max-width: 400px;
+  padding: 20px;
+  border: 2px dashed #ffffff;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.file-uploader-section .file-uploader:hover {
+  transform: scale(1.05);
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.file-uploader-section .file-uploader p {
+  font-size: 1.1rem;
+  color: #ffffff;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Mobile-First Design: Adjustments for Small Screens */
+@media screen and (max-width: 768px) {
+  .file-uploader-section h1 {
+    font-size: 2rem;
+  }
+
+  .file-uploader-section .file-uploader {
+    width: 100%;
+    padding: 15px;
+  }
+}
+
+/* Larger Screens */
+@media screen and (min-width: 1024px) {
+  .file-uploader-section h1 {
+    font-size: 3rem;
+  }
+
+  .file-uploader-section .file-uploader {
+    max-width: 450px;
+    padding: 30px;
+  }
+}
+
 .upload-button {
   background-color: #4a90e2;
   color: white;

@@ -1,5 +1,5 @@
 import React from "react";
-
+import "../styles/RawDataTable.css"
 const RawDataTable = ({ data, columnHeaders, setData }) => {
   // Handle cell edits to update the data
   const handleCellEdit = (rowIndex, colIndex, value) => {

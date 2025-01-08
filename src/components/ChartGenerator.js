@@ -175,4 +175,5 @@ const ChartGenerator = ({ data, columnHeaders }) => {
   );
 };
 
-export default ChartGenerator;
+export default ChartGenerator;
+ 

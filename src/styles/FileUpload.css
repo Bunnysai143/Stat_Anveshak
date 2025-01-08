@@ -26,8 +26,9 @@
     justify-content: center;
     width: 120px;
     height: 120px;
-    border: 2px dashed #4a90e2;
+    border: 2px dashed #000000;
     border-radius: 50%;
+    color: black;
     cursor: pointer;
     position: relative;
     overflow: hidden;
