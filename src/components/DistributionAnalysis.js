@@ -232,7 +232,7 @@ const DistributionAnalysis = ({ data, columnHeaders }) => {
             data={chartData}
             options={{
               responsive: true,
-              plugins: { title: { display: true, text: `${selectedDistribution} Distribution for ${selectedColumn}` } },
+              plugins: { title: { display: true, text: `${selectedDistribution} Distribution for ${selectedColumn} `} },
             }}
           />
         </div>
