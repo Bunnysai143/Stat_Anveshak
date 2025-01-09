@@ -7,6 +7,7 @@ import DistributionAnalysis from "./components/DistributionAnalysis"; // New com
 import "./styles/App.css";
 import InferentialStatistics from "./components/InferentialStatistics";
 import TimeSeriesAnalysis from "./components/TimeSeriesAnalysis";
+import RegressionAndCorrelation from "./components/RegCore";
 
 function App() {
   const [data, setData] = useState([]);
@@ -78,6 +79,12 @@ function App() {
                 >
                   Time Series Analysis
                 </button>
+                <button
+                  className="navbar-button"
+                  onClick={() => setSelectedComponent("RegressionAndCorrelation")}
+                >
+                  Regression& Correlation
+                </button>
               </div>
             </div>
           </nav>
@@ -117,6 +124,9 @@ function App() {
             {/* Time Series Analysis */}
             {selectedComponent === "TimeSeriesAnalysis" && (
               <TimeSeriesAnalysis data={data} columnHeaders={columnHeaders} />
+            )}
+             {selectedComponent === "RegressionAndCorrelation" && (
+              <RegressionAndCorrelation data={data} columnHeaders={columnHeaders} />
             )}
           </div>
         </>
