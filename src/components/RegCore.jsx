@@ -366,31 +366,32 @@ const RegressionAndCorrelation = ({ data = [], columnHeaders = [] }) => {
   }
 
   return (
-    <div className="regression-container">
-      <div className="grid-layout">
-        <div>
-          <h3 className="section-title">Correlation Heatmap</h3>
-          <div ref={heatmapRef} className="visualization-container heatmap-container" />
-        </div>
-        <div>
-          <h3 className="section-title">Regression Analysis</h3>
-          <div ref={scatterRef} className="visualization-container scatter-container" />
-          <div className="regression-results">
-            {regressionResults.map((result, i) => (
-              <div
-                key={i}
-                className={`result-item ${i === selectedRegression ? 'selected' : ''}`}
-                onClick={() => setSelectedRegression(i)}
-              >
-                <p className="result-title">{result.x} vs {result.y}</p>
-                <p>y = {result.slope.toFixed(4)}x + {result.intercept.toFixed(4)}</p>
-                <p>R² = {result.rSquared.toFixed(4)}</p>
-              </div>
-            ))}
+    <div className="p-5 w-full">
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div>
+      <h3 className="text-xl font-semibold mb-2">Correlation Heatmap</h3>
+      <div ref={heatmapRef} className="min-h-[400px] w-full h-[500px]" />
+    </div>
+    <div>
+      <h3 className="text-xl font-semibold mb-2">Regression Analysis</h3>
+      <div ref={scatterRef} className="min-h-[400px] w-full h-[500px]" />
+      <div className="space-y-2">
+        {regressionResults.map((result, i) => (
+          <div
+            key={i}
+            className={`p-2 rounded border border-gray-200 cursor-pointer hover:bg-gray-50 
+              ${i === selectedRegression ? 'bg-blue-100' : ''}`}
+            onClick={() => setSelectedRegression(i)}
+          >
+            <p className="font-medium">{result.x} vs {result.y}</p>
+            <p>y = {result.slope.toFixed(4)}x + {result.intercept.toFixed(4)}</p>
+            <p>R² = {result.rSquared.toFixed(4)}</p>
           </div>
-        </div>
+        ))}
       </div>
     </div>
+  </div>
+</div>
   );
 };
 

@@ -8,6 +8,8 @@ import "./styles/App.css";
 import InferentialStatistics from "./components/InferentialStatistics";
 import TimeSeriesAnalysis from "./components/TimeSeriesAnalysis";
 import RegressionAndCorrelation from "./components/RegCore";
+// import DatasetViewer from "./components/DatasetViewer";
+import MultivariateAnalysis from "./components/MultivariateAnalysis ";
 
 function App() {
   const [data, setData] = useState([]);
@@ -44,47 +46,55 @@ function App() {
             <div className="navbar-container">
               <div className="navbar-links">
                 <button
-                  className="navbar-button"
+                  className="w-[11%] bg-black text-white text-base font-semibold hover:bg-slate-900"
                   onClick={() => setSelectedComponent("RawDataTable")}
                 >
                   Raw Data Table
                 </button>
                 <button
-                  className="navbar-button"
+                  className="w-[11%] bg-black text-white text-base font-semibold hover:bg-slate-900"
                   onClick={() => setSelectedComponent("CoreStatistics")}
                 >
                   Core Statistics
                 </button>
                 <button
-                  className="navbar-button"
+                  className="w-[11%] bg-black text-white text-base font-semibold hover:bg-slate-900"
                   onClick={() => setSelectedComponent("ChartGenerator")}
                 >
                   Chart Generator
                 </button>
                 <button
-                  className="navbar-button"
+                  className="w-[11%] bg-black text-white text-base font-semibold hover:bg-slate-900"
                   onClick={() => setSelectedComponent("DistributionAnalysis")} // New button for distribution
                 >
                   Distribution Analysis
                 </button>
                 <button
-                  className="navbar-button"
+                  className="w-[11%] bg-black text-white text-base font-semibold hover:bg-slate-900"
                   onClick={() => setSelectedComponent("InferentialStatistics")}
                 >
                   Inferential Statistics
                 </button>
                 <button
-                  className="navbar-button"
+                  className="w-[11%] bg-black text-white text-base font-semibold hover:bg-slate-900"
                   onClick={() => setSelectedComponent("TimeSeriesAnalysis")}
                 >
                   Time Series Analysis
                 </button>
                 <button
-                  className="navbar-button"
+                  className="w-[10%] bg-black text-white text-base font-semibold hover:bg-slate-900"
                   onClick={() => setSelectedComponent("RegressionAndCorrelation")}
                 >
                   Regression& Correlation
                 </button>
+                <button
+                  className="w-[10%] bg-black text-white text-base font-semibold hover:bg-slate-900"
+                  onClick={() => setSelectedComponent("DatasetViewer")}
+                //disabled={data.length === 0} // Disable button if no data
+                >
+                 Multivariate Analysis
+                </button>
+
               </div>
             </div>
           </nav>
@@ -128,6 +138,15 @@ function App() {
              {selectedComponent === "RegressionAndCorrelation" && (
               <RegressionAndCorrelation data={data} columnHeaders={columnHeaders} />
             )}
+
+{selectedComponent === "DatasetViewer" && (
+              <MultivariateAnalysis
+                data={data}
+                columnHeaders={columnHeaders}
+                setData={setData}
+              />
+            )}
+
           </div>
         </>
       )}
