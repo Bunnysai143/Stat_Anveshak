@@ -12,6 +12,15 @@ const RawDataTable = ({ data, columnHeaders, setData }) => {
     setData(updatedData); // Update the data state
   };
 
+  // Prevent "Enter" from adding a new line
+  const handleKeyDown = (e, rowIndex, colIndex) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevent newline
+      e.target.blur(); // Trigger blur to save changes
+      handleCellEdit(rowIndex, colIndex, e.target.innerText.trim());
+    }
+  };
+
   // Convert the dataset to CSV format
   const convertToCSV = () => {
     const header = columnHeaders.join(",");
@@ -71,7 +80,14 @@ const RawDataTable = ({ data, columnHeaders, setData }) => {
                 className={`sticky-header ${sortConfig.colIndex === colIndex ? sortConfig.direction : ""}`}
                 onClick={() => handleSort(colIndex)}
               >
-                {header} <span>{sortConfig.colIndex === colIndex ? (sortConfig.direction === "ascending" ? "▲" : "▼") : "↕"}</span>
+                {header}{" "}
+                <span>
+                  {sortConfig.colIndex === colIndex
+                    ? sortConfig.direction === "ascending"
+                      ? "▲"
+                      : "▼"
+                    : "↕"}
+                </span>
               </th>
             ))}
           </tr>
@@ -83,7 +99,8 @@ const RawDataTable = ({ data, columnHeaders, setData }) => {
                 <td
                   key={colIndex}
                   contentEditable
-                  onBlur={(e) => handleCellEdit(rowIndex, colIndex, e.target.innerText)}
+                  onBlur={(e) => handleCellEdit(rowIndex, colIndex, e.target.innerText.trim())}
+                  onKeyDown={(e) => handleKeyDown(e, rowIndex, colIndex)}
                 >
                   {cell}
                 </td>

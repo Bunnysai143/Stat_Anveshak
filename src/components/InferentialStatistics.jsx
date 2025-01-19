@@ -1,280 +1,304 @@
-import React, { useEffect, useState } from 'react';
-import { Line, Bar, Scatter } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import "../styles/InferentialStatistics.css";
+import React, { useState, useCallback, useEffect } from 'react';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Download, Upload } from 'lucide-react';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+const StatisticalAnalysis = ({ data: initialData, columnHeaders }) => {
+  // State management
+  const [data, setData] = useState([]);
+  const [selectedColumns, setSelectedColumns] = useState([]);
+  const [testResults, setTestResults] = useState(null);
+  const [samplingMethod, setSamplingMethod] = useState('random');
+  const [sampleSize, setSampleSize] = useState(Math.min(30, initialData?.length || 30));
+  const [error, setError] = useState(null);
+  const [animationKey, setAnimationKey] = useState(0);
 
-const InferentialStatisticsVisualiser = ({ data, columnHeaders }) => {
-  const [selectedCategory, setSelectedCategory] = useState('hypothesis');
-  const [xAxisColumn, setXAxisColumn] = useState(columnHeaders?.[0] || '');
-  // console.log(xAxisColumn);
-  const [indexx,setIndex] = useState(1);
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      x: { type: 'category', title: { display: true, text: 'Categories' } },
-      y: { type: 'linear', title: { display: true, text: 'Values' } },
-    },
-    plugins: {
-      legend: { position: 'top' },
-      tooltip: { mode: 'index', intersect: false },
-    },
-  };
-
-  useEffect(()=>{
-   let a= columnHeaders.findIndex((element) => element === xAxisColumn);
-   setIndex(a);
-   console.log(indexx);
-  })
-
-  const getXValues = () => {
-    const columnIndex = columnHeaders.indexOf(xAxisColumn);
-  
-    if (columnIndex === -1) {
-      return data.map((_, index) => `Index ${index + 1}`); // Fallback labels
+  // Initialize data with column headers
+  useEffect(() => {
+    if (initialData && columnHeaders) {
+      const formattedData = initialData.map((row, index) => {
+        const dataPoint = { index };
+        columnHeaders.forEach((header, i) => {
+          dataPoint[header] = row[i];
+        });
+        return dataPoint;
+      });
+      setData(formattedData);
     }
-  
-    return data.map((row) => {
-      const value = row[columnIndex];
-      return value !== undefined && value !== null ? value : 'No Data'; // Handle missing values
-    });
-  };
-  
-  let a= data.map((item) => item[5] + 10);
-  console.log(a);
-  console.log("X Axis Labels:", getXValues());
-  
+  }, [initialData, columnHeaders]);
 
-  const chartData = {
-    zTest: {
-      labels: getXValues(),
-      datasets: [
-        {
-          label: 'Z-Distribution',
-          data: data.map((item) => item[5]),
-          borderColor: 'rgb(75, 192, 192)',
-          tension: 0.4,
-          fill: false,
-        },
-      ],
-    },
-    tTest: {
-      labels: getXValues(),
-      datasets: [
-        {
-          label: 'Sample Distribution',
-          data: data.map((item) => item[2]),
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
-        },
-      ],
-    },
-    chiSquare: {
-      labels: getXValues(),
-      datasets: [
-        {
-          label: 'Observed',
-          data: data.map((item) => item[3]),
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
-        },
-        {
-          label: 'Expected',
-          data: data.map((item) => item[4]),
-          backgroundColor: 'rgba(153, 102, 255, 0.5)',
-        },
-      ],
-    },
-    anova: {
-      labels: getXValues(),
-      datasets: [
-        {
-          label: 'ANOVA',
-          data: data.map((item) => {
-            const value = item[indexx+1]; // Ensure this index matches your data structure
-            return value !== undefined && !isNaN(value) ? value : null;
-          }).filter((value) => value !== null), // Exclude invalid values
-          backgroundColor: 'rgba(255, 99, 132, 0.5)',
-        },
-      ],
+  // Statistical Functions
+  const statisticalHelpers = {
+    calculateMean: (arr) => {
+      if (!arr?.length) return 0;
+      return arr.reduce((a, b) => a + (typeof b === 'number' ? b : 0), 0) / arr.length;
     },
     
-    
-    confidence: {
-      labels: getXValues(),
-      datasets: [
-        {
-          label: 'Mean',
-          data: data.map((item) => item[5]),
-          borderColor: 'rgb(75, 192, 192)',
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
-          type: 'line',
-        },
-        {
-          label: 'Lower Bound',
-          data: data.map((item) => item[5] - 10),
-          backgroundColor: 'rgba(75, 192, 192, 0.1)',
-          borderColor: 'rgba(75, 192, 192, 0.1)',
-          type: 'line',
-        },  
-        {
-          label: 'Upper Bound',
-          data: data.map((item) => item[5] + 10),
-          backgroundColor: 'rgba(75, 192, 192, 0.1)',
-          borderColor: 'rgba(75, 192, 192, 0.1)',
-          type: 'line',
-        },
-      ],
-    },
-    randomSampling: {
-      labels: data.map((_, index) => `Sample ${index + 1}`),
-      datasets: [
-        {
-          label: 'Random Samples',
-          data: data.map((item, index) => ({ x: index + 1, y: item[5] || 0 })),
-          backgroundColor: 'rgb(75, 192, 192)',
-        },
-      ],
-    },
-    stratified: {
-      labels: getXValues(),
-      datasets: [
-        {
-          label: 'Stratum Size',
-          data: data.map((item) => item[1] ?? 0),
-          backgroundColor: 'rgba(75, 192, 192, 0.5)',
-        },
-        {
-          label: 'Sample Size',
-          data: data.map((item) => item[8] || 0),
-          backgroundColor: 'rgba(153, 102, 255, 0.5)',
-        },
-      ],
-    },
-    clusterSampling: {
-      labels: data.map((_, index) => `Cluster ${index + 1}`),
-      datasets: [
-        {
-          label: 'Cluster Samples',
-          data: data.map((item) => item[1] ??0),
-          backgroundColor: 'rgb(255, 159, 64)',
-        },
-      ],
-    },
+    calculateStandardDeviation: (arr) => {
+      if (!arr?.length) return 0;
+      const mean = statisticalHelpers.calculateMean(arr);
+      const variance = arr.reduce((a, b) => a + Math.pow((b - mean), 2), 0) / (arr.length - 1);
+      return Math.sqrt(variance);
+    }
   };
 
-  const renderChart = (type) => {
-    const charts = {
-      hypothesis: (
-        <div className="space-y-6">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">Z-Test Distribution</h2>
-            <div style={{ height: '300px' }}>
-              <Line data={chartData.zTest} options={options} />
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">T-Test Comparison</h2>
-            <div style={{ height: '300px' }}>
-              <Bar data={chartData.tTest} options={options} />
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">Chi-Square Test</h2>
-            <div style={{ height: '300px' }}>
-              <Bar data={chartData.chiSquare} options={options} />
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">ANOVA</h2>
-            <div style={{ height: '300px' }}>
-              <Bar data={chartData.anova} options={options} />
-            </div>
-          </div>
-        </div>
-      ),
-      confidence: (
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-bold mb-4">Confidence Intervals</h2>
-          <div style={{ height: '300px' }}>
-            <Line data={chartData.confidence} options={options} />
-          </div>
-        </div>
-      ),
-      sampling: (
-        <div className="space-y-6">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">Random Sampling Distribution</h2>
-            <div style={{ height: '300px' }}>
-              <Scatter data={chartData.randomSampling} options={options} />
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">Stratified Sampling</h2>
-            <div style={{ height: '300px' }}>
-              <Bar data={chartData.stratified} options={options} />
-            </div>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">Cluster Sampling</h2>
-            <div style={{ height: '300px' }}>
-              <Bar data={chartData.clusterSampling} options={options} />
-            </div>
-          </div>
-        </div>
-      ),
+  // Perform statistical test
+  const performStatisticalTest = useCallback((testType) => {
+    try {
+      if (!selectedColumns.length) {
+        throw new Error('Please select columns for analysis');
+      }
+
+      const results = {
+        testType,
+        columns: selectedColumns,
+        statistics: {}
+      };
+
+      selectedColumns.forEach(column => {
+        const values = data.map(row => row[column]);
+        results.statistics[column] = {
+          mean: statisticalHelpers.calculateMean(values),
+          stdDev: statisticalHelpers.calculateStandardDeviation(values),
+          sampleSize: values.length
+        };
+      });
+
+      setTestResults(results);
+      setAnimationKey(prev => prev + 1); // Trigger animation
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    }
+  }, [data, selectedColumns]);
+
+  // Handle file upload
+  const handleFileUpload = useCallback((event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+  
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target.result;
+        const rows = text
+          .split('\n')
+          .map(row => row.trim())
+          .filter(row => row.length > 0)
+          .map(row => row.split(','));
+  
+        if (rows.length < 2) {
+          throw new Error('File must contain header row and data');
+        }
+  
+        const headers = rows[0]; // First row as headers
+        const newData = rows.slice(1).map((row, index) => {
+          const dataPoint = { index };
+          headers.forEach((header, i) => {
+            const value = row[i];
+            dataPoint[header] = !isNaN(parseFloat(value)) ? parseFloat(value) : value;
+          });
+          return dataPoint;
+        });
+  
+        setData(newData); // Update data
+        setSelectedColumns([]); // Reset selected columns
+        setTestResults(null); // Clear previous results
+        setAnimationKey(prev => prev + 1); // Trigger animation
+        setError(null);
+        columnHeaders = headers; // Dynamically update column headers
+      } catch (err) {
+        setError(`Error parsing file: ${err.message}`);
+      }
     };
-    return charts[type] || null;
-  };
+    reader.onerror = () => setError('Error reading file');
+    reader.readAsText(file);
+  }, []);
+  
+
+  // Export results
+  const exportData = useCallback(() => {
+    if (!testResults) {
+      setError('No results to export');
+      return;
+    }
+    
+    const blob = new Blob([JSON.stringify(testResults, null, 2)], {
+      type: 'application/json'
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'statistical_analysis_results.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, [testResults]);
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <div className="text-center space-y-4">
-        <h1 className="text-2xl font-bold">Inferential Statistics Visualization</h1>
-        <select
-          value={xAxisColumn}
-          onChange={(e) => setXAxisColumn(e.target.value)}
-          className="px-4 py-2 border rounded-md"
-        >
-          {columnHeaders?.map((header, index) => (
-            
-            <option key={index} value={header}> 
-              {header}
-            </option>
-          ))}
-        </select>
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="px-4 py-2 border rounded-md"
-        >
-          <option value="hypothesis">Hypothesis Testing</option>
-          <option value="confidence">Confidence Intervals</option>
-          <option value="sampling">Sampling Methods</option>
-        </select>
+    <div className="w-full max-w-6xl bg-white rounded-lg shadow-lg p-6">
+      {/* Header and Controls */}
+      <div className="mb-6 space-y-4">
+        <h2 className="text-2xl font-bold text-gray-800">Statistical Analysis</h2>
+        
+        <div className="flex flex-wrap gap-4">
+          <select
+            value={samplingMethod}
+            onChange={(e) => setSamplingMethod(e.target.value)}
+            className="px-4 py-2 border rounded hover:border-blue-500 transition-colors"
+          >
+            <option value="random">Random Sampling</option>
+            <option value="stratified">Stratified Sampling</option>
+            <option value="cluster">Cluster Sampling</option>
+          </select>
+          
+          <input
+            type="number"
+            value={sampleSize}
+            onChange={(e) => setSampleSize(Math.max(1, Math.min(data.length, parseInt(e.target.value) || 0)))}
+            className="px-4 py-2 border rounded"
+            min="1"
+            max={data.length}
+          />
+          
+          <button
+            onClick={() => document.getElementById('fileInput').click()}
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Upload Data
+          </button>
+          
+          <input
+            id="fileInput"
+            type="file"
+            accept=".csv"
+            className="hidden"
+            onChange={handleFileUpload}
+          />
+          
+          <button
+            onClick={exportData}
+            disabled={!testResults}
+            className="flex items-center px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors disabled:opacity-50"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Export Results
+          </button>
+        </div>
       </div>
-      {renderChart(selectedCategory)}
+
+      {/* Main Content */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Column Selection and Test Controls */}
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            {columnHeaders.map(header => (
+              <button
+                key={header}
+                className={`px-4 py-2 rounded transition-colors ${
+                  selectedColumns.includes(header)
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+                onClick={() => {
+                  setSelectedColumns(prev => 
+                    prev.includes(header)
+                      ? prev.filter(col => col !== header)
+                      : prev.length < 2
+                        ? [...prev, header]
+                        : prev
+                  );
+                }}
+              >
+                {header}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap gap-4">
+            {['Z-Test', 'T-Test', 'Chi-Square', 'ANOVA'].map(test => (
+              <button
+                key={test}
+                onClick={() => performStatisticalTest(test.toLowerCase().replace('-', ''))}
+                disabled={!selectedColumns.length}
+                className={`px-4 py-2 rounded transition-colors ${
+                  selectedColumns.length
+                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                {test}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Results and Visualization */}
+        <div className="space-y-4">
+          {testResults && (
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <pre className="whitespace-pre-wrap text-sm overflow-auto">
+                {JSON.stringify(testResults, null, 2)}
+              </pre>
+            </div>
+          )}
+          
+          {error && (
+            <div className="p-4 bg-red-100 text-red-700 rounded-lg">
+              {error}
+            </div>
+          )}
+
+          {/* Animated Visualizations */}
+          {selectedColumns.length > 0 && (
+  <div className="h-80" key={animationKey}>
+    <ResponsiveContainer width="100%" height="100%">
+      {selectedColumns.length === 1 ? (
+        // Line Chart for a single column
+        <LineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="index" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Line
+            type="monotone"
+            dataKey={selectedColumns[0]} // Use the selected column as the key
+            stroke="#8884d8"
+            isAnimationActive={true}
+            animationDuration={1000}
+            animationEasing="ease-in-out"
+          />
+        </LineChart>
+      ) : (
+        // Bar Chart for multiple columns
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="index" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          {selectedColumns.map((column, index) => (
+            <Bar
+              key={column}
+              dataKey={column} // Dynamically set the data key
+              fill={index === 0 ? "#8884d8" : "#82ca9d"}
+              isAnimationActive={true}
+              animationDuration={1000}
+              animationEasing="ease-in-out"
+            />
+          ))}
+        </BarChart>
+      )}
+    </ResponsiveContainer>
+  </div>
+)}
+
+        </div>
+      </div>
     </div>
   );
 };
 
-export default InferentialStatisticsVisualiser;
+export default StatisticalAnalysis;

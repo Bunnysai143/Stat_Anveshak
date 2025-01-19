@@ -375,20 +375,37 @@ const RegressionAndCorrelation = ({ data = [], columnHeaders = [] }) => {
     <div>
       <h3 className="text-xl font-semibold mb-2">Regression Analysis</h3>
       <div ref={scatterRef} className="min-h-[400px] w-full h-[500px]" />
-      <div className="space-y-2">
-        {regressionResults.map((result, i) => (
-          <div
-            key={i}
-            className={`p-2 rounded border border-gray-200 cursor-pointer hover:bg-gray-50 
-              ${i === selectedRegression ? 'bg-blue-100' : ''}`}
-            onClick={() => setSelectedRegression(i)}
-          >
-            <p className="font-medium">{result.x} vs {result.y}</p>
-            <p>y = {result.slope.toFixed(4)}x + {result.intercept.toFixed(4)}</p>
-            <p>R² = {result.rSquared.toFixed(4)}</p>
-          </div>
-        ))}
+      <div className="flex flex-wrap gap-2">
+  {regressionResults.map((result, i) => (
+    <div
+      key={i}
+      className={`flex items-center px-4 py-2 text-sm rounded-full border cursor-pointer 
+        ${
+          i === selectedRegression
+            ? 'bg-blue-500 text-white'
+            : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+        }`}
+      onClick={() => setSelectedRegression(i)}
+    >
+      <div className="flex flex-col">
+        <span className="font-medium">{result.x} vs {result.y}</span>
+        <span>y = {result.slope.toFixed(4)}x + {result.intercept.toFixed(4)}</span>
+        <span>R² = {result.rSquared.toFixed(4)}</span>
       </div>
+      <button
+        className="ml-4 text-gray-500 hover:text-red-500 focus:outline-none"
+        onClick={(e) => {
+          e.stopPropagation();
+          // Add functionality to remove chip if needed
+          console.log(`Remove chip ${i}`);
+        }}
+      >
+        
+      </button>
+    </div>
+  ))}
+</div>
+
     </div>
   </div>
 </div>

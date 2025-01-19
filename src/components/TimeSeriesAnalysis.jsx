@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import * as ss from "simple-statistics";
-import Papa from "papaparse";
+import  Papa  from "papaparse";
 import * as XLSX from "xlsx";
 import "../styles/TimeSeriesAnalysis.css";
 import { useDropzone } from 'react-dropzone';
