@@ -4,13 +4,23 @@ import "../styles/RawDataTable.css";
 const RawDataTable = ({ data, columnHeaders, setData }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({ colIndex: null, direction: null });
+  console.log("Received data:", data);
+console.log("Received columns:", columnHeaders);
 
   // Handle cell edits to update the data
   const handleCellEdit = (rowIndex, colIndex, value) => {
     const updatedData = [...data];
-    updatedData[rowIndex][colIndex] = value;
-    setData(updatedData); // Update the data state
+    
+    if (Array.isArray(updatedData[rowIndex])) {
+      updatedData[rowIndex][colIndex] = value;
+    } else {
+      const key = columnHeaders[colIndex];
+      updatedData[rowIndex][key] = value;
+    }
+  
+    setData(updatedData);
   };
+  
 
   // Prevent "Enter" from adding a new line
   const handleKeyDown = (e, rowIndex, colIndex) => {
@@ -55,9 +65,12 @@ const RawDataTable = ({ data, columnHeaders, setData }) => {
   };
 
   // Filter data based on the search query
-  const filteredData = data.filter((row) =>
-    row.some((cell) => cell.toString().toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredData = data.filter((row) => 
+    Object.values(row).some((cell) => 
+      cell.toString().toLowerCase().includes(searchQuery.toLowerCase())
+    )
   );
+  
 
   return (
     <div className="table-container">

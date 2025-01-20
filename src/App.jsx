@@ -8,7 +8,9 @@ import InferentialStatistics from "./components/InferentialStatistics";
 import TimeSeriesAnalysis from "./components/TimeSeriesAnalysis";
 import RegressionAndCorrelation from "./components/RegCore";
 import MultivariateAnalysis from "./components/MultivariateAnalysis ";
+import { predefinedDatasets, parseCSVData } from "./utils/datasets";
 import "./styles/App.css";
+// import { predefinedDatasets } from "./utils/datasets";
 
 function App() {
   const [data, setData] = useState([]);
@@ -24,46 +26,44 @@ function App() {
 
   const handleManualInput = (event) => {
     event.preventDefault();
-    const rawInput = event.target.manualData.value;
-    const rows = rawInput.split("\n").map((row) => row.split(","));
+    const rawInput = event.target.manualData.value.trim();
+    if (!rawInput) {
+      alert("Please enter valid data.");
+      return;
+    }
+  
+    const rows = rawInput
+      .split("\n")
+      .map(row => row.split(",").map(value => value.trim()));
+  
+    if (rows.length < 2) {
+      alert("Please enter valid CSV data with at least one data row.");
+      return;
+    }
+  
     const headers = rows[0];
-    const body = rows.slice(1).map((row) => {
-      return headers.reduce((acc, header, index) => {
-        acc[header] = row[index];
-        return acc;
-      }, {});
-    });
-
+    const body = rows.slice(1).map(row => row.length === headers.length ? row : headers.map(() => ""));
+  
     setData(body);
     setColumnHeaders(headers);
     setSelectedComponent("RawDataTable");
   };
+  
+  
 
   const handlePredefinedDataset = (datasetName) => {
-    const predefinedDatasets = {
-      "Dataset 1": {
-        headers: ["Name", "Age", "Score"],
-        data: [
-          { Name: "Alice", Age: "25", Score: "85" },
-          { Name: "Bob", Age: "30", Score: "90" },
-          { Name: "Charlie", Age: "28", Score: "88" },
-        ],
-      },
-      "Dataset 2": {
-        headers: ["City", "Population", "Area"],
-        data: [
-          { City: "New York", Population: "8419000", Area: "783.8" },
-          { City: "Los Angeles", Population: "3980400", Area: "1302" },
-          { City: "Chicago", Population: "2716000", Area: "606.1" },
-        ],
-      },
-    };
-
-    const dataset = predefinedDatasets[datasetName];
-    setData(dataset.data);
-    setColumnHeaders(dataset.headers);
-    setSelectedComponent("RawDataTable");
+    const csvData = predefinedDatasets[datasetName];
+    
+    if (csvData) {
+      const { headers, body } = parseCSVData(csvData);
+      setData(body);
+      setColumnHeaders(headers);
+      setSelectedComponent("RawDataTable");
+    } else {
+      alert("Dataset not found!");
+    }
   };
+  
 
   return (
     <div className="flex h-screen">
@@ -136,11 +136,16 @@ function App() {
                 className="bg-white shadow-md p-4 rounded mb-4"
               >
                 <textarea
-                  name="manualData"
-                  rows="5"
-                  className="w-full border border-gray-300 p-2 rounded mb-2"
-                  placeholder="Enter data as CSV (e.g., Name, Age, Score\nAlice, 25, 85)"
-                ></textarea>
+  name="manualData"
+  rows="5"
+  className="w-full border border-gray-300 p-2 rounded mb-2"
+  placeholder="Example Format
+Name,Age,Score 
+Alice,25,85
+Bob,30,90
+Charlie,28,88"
+></textarea>
+
                 <button
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500"

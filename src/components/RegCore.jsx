@@ -366,7 +366,7 @@ const RegressionAndCorrelation = ({ data = [], columnHeaders = [] }) => {
   }
 
   return (
-    <div className="p-5 w-full">
+<div className="p-5 w-full">
   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
     <div>
       <h3 className="text-xl font-semibold mb-2">Correlation Heatmap</h3>
@@ -375,40 +375,41 @@ const RegressionAndCorrelation = ({ data = [], columnHeaders = [] }) => {
     <div>
       <h3 className="text-xl font-semibold mb-2">Regression Analysis</h3>
       <div ref={scatterRef} className="min-h-[400px] w-full h-[500px]" />
-      <div className="flex flex-wrap gap-2">
-  {regressionResults.map((result, i) => (
-    <div
-      key={i}
-      className={`flex items-center px-4 py-2 text-sm rounded-full border cursor-pointer 
-        ${
-          i === selectedRegression
-            ? 'bg-blue-500 text-white'
-            : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-        }`}
-      onClick={() => setSelectedRegression(i)}
-    >
-      <div className="flex flex-col">
-        <span className="font-medium">{result.x} vs {result.y}</span>
-        <span>y = {result.slope.toFixed(4)}x + {result.intercept.toFixed(4)}</span>
-        <span>R² = {result.rSquared.toFixed(4)}</span>
-      </div>
-      <button
-        className="ml-4 text-gray-500 hover:text-red-500 focus:outline-none"
-        onClick={(e) => {
-          e.stopPropagation();
-          // Add functionality to remove chip if needed
-          console.log(`Remove chip ${i}`);
-        }}
-      >
-        
-      </button>
-    </div>
-  ))}
-</div>
-
     </div>
   </div>
+
+  {/* Column vs Column section utilizing space under both sections */}
+  <div className="mt-8 flex flex-wrap gap-2">
+    {regressionResults.map((result, i) => (
+      <div
+        key={i}
+        className={`flex items-center px-4 py-2 text-sm rounded-full border cursor-pointer 
+          ${
+            i === selectedRegression
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+          }`}
+        onClick={() => setSelectedRegression(i)}
+      >
+        <div className="flex flex-col">
+          <span className="font-medium">{result.x} vs {result.y}</span>
+          <span>y = {result.slope.toFixed(4)}x + {result.intercept.toFixed(4)}</span>
+          <span>R² = {result.rSquared.toFixed(4)}</span>
+        </div>
+        <button
+          className="ml-4 text-gray-500 hover:text-red-500 focus:outline-none"
+          onClick={(e) => {
+            e.stopPropagation();
+            console.log(`Remove chip ${i}`);
+          }}
+        >
+          ✕
+        </button>
+      </div>
+    ))}
+  </div>
 </div>
+
   );
 };
 
