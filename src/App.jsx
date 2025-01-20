@@ -53,9 +53,12 @@ function App() {
 
   const handlePredefinedDataset = (datasetName) => {
     const csvData = predefinedDatasets[datasetName];
-    
+  
     if (csvData) {
       const { headers, body } = parseCSVData(csvData);
+      console.log("Parsed Headers: ", headers); // Log headers
+      console.log("Parsed Body: ", body); // Log the data rows
+  
       setData(body);
       setColumnHeaders(headers);
       setSelectedComponent("RawDataTable");
@@ -63,6 +66,7 @@ function App() {
       alert("Dataset not found!");
     }
   };
+  
   
 
   return (

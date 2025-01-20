@@ -1034,17 +1034,9 @@ Imran Tahir,87,4975,158,66,83`,
 }
 
 
-export const parseCSVData = (csvString) => {
-    const rows = csvString
-      .trim()
-      .split("\n")
-      .map(row => row.split(",").map(value => value.trim()));
-  
-    const headers = rows[0];
-    const body = rows.slice(1);
-  
-    return {
-      headers,
-      body
-    };
-  };
+export const parseCSVData = (csvData) => {
+  const rows = csvData.split("\n").map(row => row.split(","));
+  const headers = rows[0];
+  const body = rows.slice(1);
+  return { headers, body };
+};

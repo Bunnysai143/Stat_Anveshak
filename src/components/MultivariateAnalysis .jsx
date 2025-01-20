@@ -9,10 +9,19 @@ const calculateStandardDeviation = (arr, mean) => {
 
 const getNumericColumns = (data) => {
   if (!data || data.length === 0) return [];
-  return data[0].map((_, index) => {
-    return data.every(row => typeof row[index] === 'number') ? index : null;
+  const numericColumns = data[0].map((_, index) => {
+    const isNumeric = data.every(row => !isNaN(row[index]) && row[index] !== null && row[index] !== '');
+    if (isNumeric) {
+      console.log(`Column ${index} is numeric`);
+    }
+    return isNumeric ? index : null;
   }).filter(index => index !== null);
+  
+  console.log("Detected numeric columns: ", numericColumns); // Log numeric columns
+  return numericColumns;
 };
+
+
 
 // New Factor Analysis Implementation
 const performFactorAnalysis = (data, numFactors = 2) => {
