@@ -1,26 +1,22 @@
 import React, { useState } from "react";
-import "../styles/RawDataTable.css";
 
 const RawDataTable = ({ data, columnHeaders, setData }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState({ colIndex: null, direction: null });
-  console.log("Received data:", data);
-console.log("Received columns:", columnHeaders);
 
   // Handle cell edits to update the data
   const handleCellEdit = (rowIndex, colIndex, value) => {
     const updatedData = [...data];
-    
+
     if (Array.isArray(updatedData[rowIndex])) {
       updatedData[rowIndex][colIndex] = value;
     } else {
       const key = columnHeaders[colIndex];
       updatedData[rowIndex][key] = value;
     }
-  
+
     setData(updatedData);
   };
-  
 
   // Prevent "Enter" from adding a new line
   const handleKeyDown = (e, rowIndex, colIndex) => {
@@ -65,36 +61,37 @@ console.log("Received columns:", columnHeaders);
   };
 
   // Filter data based on the search query
-  const filteredData = data.filter((row) => 
-    Object.values(row).some((cell) => 
+  const filteredData = data.filter((row) =>
+    Object.values(row).some((cell) =>
       cell.toString().toLowerCase().includes(searchQuery.toLowerCase())
     )
   );
-  
 
   return (
-    <div className="table-container">
+    <div className="max-w-full mx-auto p-6 bg-white rounded-lg shadow-md">
       {/* Search Input */}
       <input
         type="text"
         placeholder="Search..."
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        className="search-input"
+        className="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
       />
 
       {/* Data Table */}
-      <table className="striped responsive-table">
+      <table className="min-w-full table-auto border-collapse">
         <thead>
           <tr>
             {columnHeaders.map((header, colIndex) => (
               <th
                 key={colIndex}
-                className={`sticky-header ${sortConfig.colIndex === colIndex ? sortConfig.direction : ""}`}
+                className={`px-4 py-2 text-left text-sm font-medium text-gray-700 cursor-pointer ${
+                  sortConfig.colIndex === colIndex ? "bg-indigo-100" : "bg-gray-50"
+                }`}
                 onClick={() => handleSort(colIndex)}
               >
                 {header}{" "}
-                <span>
+                <span className="text-xs">
                   {sortConfig.colIndex === colIndex
                     ? sortConfig.direction === "ascending"
                       ? "▲"
@@ -107,13 +104,14 @@ console.log("Received columns:", columnHeaders);
         </thead>
         <tbody>
           {filteredData.map((row, rowIndex) => (
-            <tr key={rowIndex}>
+            <tr key={rowIndex} className="border-t hover:bg-gray-100">
               {row.map((cell, colIndex) => (
                 <td
                   key={colIndex}
                   contentEditable
                   onBlur={(e) => handleCellEdit(rowIndex, colIndex, e.target.innerText.trim())}
                   onKeyDown={(e) => handleKeyDown(e, rowIndex, colIndex)}
+                  className="px-4 py-2 text-sm text-gray-700 cursor-pointer"
                 >
                   {cell}
                 </td>
@@ -124,7 +122,10 @@ console.log("Received columns:", columnHeaders);
       </table>
 
       {/* Button to download the modified dataset */}
-      <button className="download-btn" onClick={downloadCSV}>
+      <button
+        onClick={downloadCSV}
+        className="mt-4 px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+      >
         Download Modified Dataset
       </button>
     </div>

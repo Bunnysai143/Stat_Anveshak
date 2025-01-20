@@ -366,7 +366,7 @@ const RegressionAndCorrelation = ({ data = [], columnHeaders = [] }) => {
   }
 
   return (
-<div className="p-5 w-full">
+<div className="p-5 w-full ">
   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
     <div>
       <h3 className="text-xl font-semibold mb-2">Correlation Heatmap</h3>
@@ -403,7 +403,7 @@ const RegressionAndCorrelation = ({ data = [], columnHeaders = [] }) => {
             console.log(`Remove chip ${i}`);
           }}
         >
-          ✕
+          
         </button>
       </div>
     ))}

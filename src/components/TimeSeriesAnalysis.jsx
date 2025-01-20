@@ -837,7 +837,7 @@ function TimeSeriesAnalysis({ initialData = defaultData }) {
     }
   };
   return (
-    <div className="time-series-analysis">
+    <div className="time-series-analysis ">
       {!showSelectors ? (
         <>
           <h2>Time Series Analysis</h2>

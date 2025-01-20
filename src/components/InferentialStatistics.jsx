@@ -374,7 +374,7 @@ const InferentialStatistics = ({ data: initialData, columnHeaders: initialHeader
 
   // Main return remains the same but without the universal export button
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="max-w-7xl mx-auto p-6 space-y-6 bg-gradient-to-r from-indigo-300 to-purple-300">
       {/* File Upload and Error/Loading States */}
       <div className="flex justify-between items-center">
         <div>
@@ -417,7 +417,7 @@ const InferentialStatistics = ({ data: initialData, columnHeaders: initialHeader
                 py-4 px-1 border-b-2 font-medium text-sm
                 ${activeTab === tab.id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}
+                  : 'border-transparent text-gray-500 hover:text-gray-300  hover:border-gray-300'}
               `}
             >
               {tab.name}

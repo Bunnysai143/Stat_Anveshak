@@ -179,7 +179,7 @@ const MultivariateAnalysis = ({ data = [],columnHeaders=[] }) => {
   const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#ff0000'];
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full space-y-4 ">
       <div className="flex gap-4 items-center">
         <select 
           className="px-4 py-2 border rounded-md"
@@ -226,7 +226,7 @@ const MultivariateAnalysis = ({ data = [],columnHeaders=[] }) => {
           />
         )}
         
-        <button
+        <button 
           onClick={handleAnalysis}
           className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:bg-gray-400"
           disabled={!data.length || numericColumns.length < 2}

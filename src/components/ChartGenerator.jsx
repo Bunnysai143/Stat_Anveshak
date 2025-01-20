@@ -102,7 +102,7 @@ const ChartGenerator = ({ data, columnHeaders }) => {
   };
 
   return (
-    <div className="flex flex-col items-center p-6 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-xl max-w-4xl mx-auto">
+    <div className="flex flex-col items-center p-6 bg-gradient-to-r from-indigo-300 to-purple-300 rounded-lg shadow-xl max-w-4xl mx-auto">
       <div className="w-full max-w-lg mb-8">
         {/* Controls Section */}
         <div className="space-y-4">
