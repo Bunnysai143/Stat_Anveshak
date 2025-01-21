@@ -1,7 +1,6 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { Database, BarChart2, PieChart, Activity, Calculator, Clock, TrendingUp, Network, Table, Upload } from 'lucide-react';
+import { Database, BarChart2, PieChart, Activity, Calculator, Clock, TrendingUp, Network, Table, Upload, Menu } from 'lucide-react';
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import FileUploader from "./components/FileUploader";
 import RawDataTable from "./components/RawDataTable";
@@ -13,6 +12,7 @@ import TimeSeriesAnalysis from "./components/TimeSeriesAnalysis";
 import RegressionAndCorrelation from "./components/RegCore";
 import MultivariateAnalysis from "./components/MultivariateAnalysis ";
 import { predefinedDatasets, parseCSVData } from "./utils/datasets";
+
 const navItems = [
   { name: "Upload Data", icon: Upload, path: "/upload" },
   { name: "Raw Data Table", icon: Table, path: "/raw-data" },
@@ -25,18 +25,26 @@ const navItems = [
   { name: "Multivariate Analysis", icon: Network, path: "/multivariate" }
 ];
 
-// Layout component with navigation
 function Layout({ data, setData, columnHeaders, setColumnHeaders }) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Initially the sidebar is closed
   const navigate = useNavigate();
   const location = useLocation();
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prevState) => !prevState);
+  };
+
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 relative">
       {/* Left Sidebar */}
-      <nav className="w-64 bg-gradient-to-b from-indigo-900 to-indigo-800 text-white shadow-xl">
+      <nav
+        className={`w-full  md:w-64 bg-gradient-to-b from-indigo-900 to-indigo-800 text-white shadow-xl fixed top-0 left-0 z-40 transition-transform duration-300 ease-in-out ${
+          isSidebarOpen ? "translate-y-0" : "h-full -translate-y-full"
+        } md:transform-none`}
+      >
         <div className="p-6">
-          <div 
-            className="flex items-center space-x-3 mb-8 cursor-pointer" 
+          <div
+            className="flex items-center space-x-3 mb-8 cursor-pointer"
             onClick={() => navigate("/")}
           >
             <Database className="w-8 h-8" />
@@ -62,8 +70,18 @@ function Layout({ data, setData, columnHeaders, setColumnHeaders }) {
         </div>
       </nav>
 
+      {/* Hamburger Icon for Mobile */}
+      <div className="md:hidden absolute top-4 left-4 z-50">
+        <button
+          onClick={toggleSidebar}
+          className="p-3 bg-indigo-600 rounded-md text-white focus:outline-none"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+      </div>
+
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
+      <div className="flex-1 overflow-auto md:ml-64">
         <div className="max-w-7xl mx-auto p-8">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             {data.length === 0 && location.pathname !== "/" ? (
@@ -90,26 +108,26 @@ function Welcome({ setData, setColumnHeaders }) {
   const handleManualInput = (event) => {
     event.preventDefault();
     const rawInput = event.target.manualData.value.trim();
-    
+
     if (!rawInput) {
       alert("Please enter valid data.");
       return;
     }
-  
+
     const rows = rawInput
       .split("\n")
       .map(row => row.split(",").map(value => value.trim()));
-  
+
     if (rows.length < 2) {
       alert("Please enter valid CSV data with at least one data row.");
       return;
     }
-  
+
     const headers = rows[0];
-    const body = rows.slice(1).map(row => 
+    const body = rows.slice(1).map(row =>
       row.length === headers.length ? row : headers.map(() => "")
     );
-  
+
     setData(body);
     setColumnHeaders(headers);
     navigate("/raw-data");
@@ -117,7 +135,7 @@ function Welcome({ setData, setColumnHeaders }) {
 
   const handlePredefinedDataset = (datasetName) => {
     const csvData = predefinedDatasets[datasetName];
-  
+
     if (csvData) {
       const { headers, body } = parseCSVData(csvData);
       setData(body);
@@ -186,6 +204,7 @@ function Welcome({ setData, setColumnHeaders }) {
     </div>
   );
 }
+
 function UploadData({ setData, setColumnHeaders }) {
   const navigate = useNavigate();
   
@@ -286,7 +305,6 @@ function UploadData({ setData, setColumnHeaders }) {
     </div>
   );
 }
-
 function App() {
   const [data, setData] = useState(() => {
     const savedData = localStorage.getItem('tableData');
@@ -315,7 +333,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Layout data={data} setData={setData} columnHeaders={columnHeaders} setColumnHeaders={setColumnHeaders} />}>
+      <Route path="/" element={<Layout data={data} setData={setData} columnHeaders={columnHeaders} setColumnHeaders={setColumnHeaders} />}>
           <Route index element={<Welcome setData={setData} setColumnHeaders={setColumnHeaders} />} />
           <Route path="upload" element={<UploadData setData={setData} setColumnHeaders={setColumnHeaders} />} />
           <Route path="raw-data" element={<RawDataTable data={data} setData={setData} columnHeaders={columnHeaders} />} />
