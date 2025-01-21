@@ -11,10 +11,13 @@
   },
   "dependencies": {
     "axios": "^1.7.9",
+    "bootstrap": "^5.3.3",
     "chart.js": "^4.4.7",
+    "chartjs-plugin-zoom": "^2.2.0",
     "d3": "^7.9.0",
     "file-saver": "^2.0.5",
     "html-to-image": "^1.11.11",
+    "html2canvas": "^1.4.1",
     "jstat": "^1.9.6",
     "lucide-react": "^0.473.0",
     "mathjs": "^14.0.1",
@@ -22,6 +25,7 @@
     "ml-pca": "^4.1.1",
     "papaparse": "^5.5.1",
     "react": "^18.3.1",
+    "react-bootstrap": "^2.10.7",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.3.5",
@@ -30,8 +34,7 @@
     "redux": "^5.0.1",
     "regression": "^2.0.1",
     "simple-statistics": "^7.8.7",
-    "xlsx": "^0.18.5",
-    "html2canvas": "^1.4.1"
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -46,6 +49,6 @@
     "globals": "^15.14.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
-    "vite": "^6.0.5"
+    "vite": "^6.0.9"
   }
 }

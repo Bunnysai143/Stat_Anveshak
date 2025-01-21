@@ -1,250 +1,146 @@
-import React, { useState } from "react";
-import * as ss from "simple-statistics";
-import { Line } from "react-chartjs-2";
-import "../styles/DistributionAnalysis.css";
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
-import jStat from "jstat";
+import React, { useState } from 'react';
+import { Normal, Poisson, Binomial, Uniform } from 'jStat';
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 
+// Register necessary ChartJS components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const DistributionAnalysis = ({ data, columnHeaders }) => {
-  const [selectedColumn, setSelectedColumn] = useState("");
-  const [selectedDistributionType, setSelectedDistributionType] = useState("");
-  const [selectedDistribution, setSelectedDistribution] = useState("");
-  const [chartData, setChartData] = useState(null);
-  const [accuracy, setAccuracy] = useState(null);
-
-  const continuousDistributions = [
-    "Normal", "Exponential", "Uniform", "Gamma", "Log-Normal", "Beta", "Weibull", "Chi-Square", "Cauchy", "T-Distribution"
-  ];
-
-  const discreteDistributions = [
-    "Binomial", "Poisson", "Geometric", "Bernoulli", "Negative Binomial", "Hypergeometric"
-  ];
-
-  const handleColumnChange = (event) => {
-    const column = event.target.value;
-    setSelectedColumn(column);
-    setChartData(null);
-    setSelectedDistributionType("");
-    setSelectedDistribution("");
-    setAccuracy(null);
-  };
-
-  const handleDistributionTypeChange = (event) => {
-    setSelectedDistributionType(event.target.value);
-    setSelectedDistribution("");
-    setChartData(null);
-    setAccuracy(null);
-  };
+const DistributionDisplay = () => {
+  const [selectedDistribution, setSelectedDistribution] = useState('Normal');
+  const [parameters, setParameters] = useState({ mean: 0, stddev: 1, lambda: 1, n: 10, p: 0.5, min: 0, max: 1 });
 
   const handleDistributionChange = (event) => {
-    const distribution = event.target.value;
-    setSelectedDistribution(distribution);
+    setSelectedDistribution(event.target.value);
+    resetParameters(event.target.value);
+  };
 
-    if (distribution && selectedColumn) {
-      const colIndex = columnHeaders.indexOf(selectedColumn);
-      const columnData = data.map((row) => parseFloat(row[colIndex])).filter((val) => !isNaN(val));
-      if (columnData.length === 0) return;
+  const handleParamChange = (event) => {
+    setParameters({ ...parameters, [event.target.name]: event.target.value });
+  };
 
-      const labels = Array.from({ length: columnData.length }, (_, index) => index + 1);
-      let distributionData = [];
-      let calculatedAccuracy = 0;
-
-      switch (distribution) {
-        case "Normal":
-          const mean = ss.mean(columnData);
-          const stddev = ss.standardDeviation(columnData);
-          distributionData = columnData.map((val) => ss.zScore(val, mean, stddev));
-          calculatedAccuracy = 1 - stddev / mean;
-          break;
-
-        case "Exponential":
-          const lambda = 1 / ss.mean(columnData);
-          distributionData = columnData.map((val) => lambda * Math.exp(-lambda * val));
-          calculatedAccuracy = lambda;
-          break;
-
-        case "Uniform":
-          const min = Math.min(...columnData);
-          const max = Math.max(...columnData);
-          distributionData = columnData.map(() => 1 / (max - min));
-          calculatedAccuracy = max - min;
-          break;
-
-        case "Gamma":
-          const shape = 2; // example shape
-          const scale = ss.mean(columnData) / shape;
-          distributionData = columnData.map((val) => jStat.gamma.pdf(val, shape, scale));
-          calculatedAccuracy = shape * scale;
-          break;
-
-        case "Log-Normal":
-          const logMean = Math.log(ss.mean(columnData));
-          const logStdDev = Math.log(ss.standardDeviation(columnData));
-          distributionData = columnData.map((val) => jStat.lognormal.pdf(val, logMean, logStdDev));
-          calculatedAccuracy = 1 / logStdDev;
-          break;
-
-        case "Beta":
-          const alpha = 2; // example alpha
-          const beta = 5; // example beta
-          distributionData = columnData.map((val) => jStat.beta.pdf(val, alpha, beta));
-          calculatedAccuracy = alpha / (alpha + beta);
-          break;
-
-        case "Weibull":
-          const weibullScale = ss.mean(columnData);
-          const weibullShape = 1.5; // example shape
-          distributionData = columnData.map((val) => jStat.weibull.pdf(val, weibullShape, weibullScale));
-          calculatedAccuracy = weibullScale / weibullShape;
-          break;
-
-        case "Chi-Square":
-          const df = columnData.length - 1; // degrees of freedom
-          distributionData = columnData.map((val) => jStat.chisquare.pdf(val, df));
-          calculatedAccuracy = 1 / df;
-          break;
-
-        case "Cauchy":
-          const location = ss.mean(columnData);
-          const scaleParam = ss.standardDeviation(columnData);
-          distributionData = columnData.map((val) => jStat.cauchy.pdf(val, location, scaleParam));
-          calculatedAccuracy = 1 / scaleParam;
-          break;
-
-        case "T-Distribution":
-          const dof = columnData.length - 1;
-          distributionData = columnData.map((val) => jStat.studentt.pdf(val, dof));
-          calculatedAccuracy = 1 / dof;
-          break;
-
-        case "Binomial":
-          const trials = 10; // example
-          const probability = 0.5; // example
-          distributionData = columnData.map((val) => ss.binomialDistribution(trials, probability)[val] || 0);
-          calculatedAccuracy = trials * probability;
-          break;
-
-        case "Poisson":
-          const poissonLambda = ss.mean(columnData);
-          distributionData = columnData.map((val) => ss.poissonDistribution(poissonLambda)[val] || 0);
-          calculatedAccuracy = poissonLambda;
-          break;
-
-        case "Geometric":
-          const geomP = 1 / ss.mean(columnData);
-          distributionData = columnData.map((val) => geomP * Math.pow(1 - geomP, val - 1));
-          calculatedAccuracy = geomP;
-          break;
-
-        case "Bernoulli":
-          const bernP = ss.mean(columnData);
-          distributionData = columnData.map((val) => (val === 0 ? 1 - bernP : bernP));
-          calculatedAccuracy = bernP;
-          break;
-
-        case "Negative Binomial":
-          const negR = 5; // example
-          const negP = 0.5; // example
-          distributionData = columnData.map((val) => jStat.negbinom.pdf(val, negR, negP));
-          calculatedAccuracy = negR * negP;
-          break;
-
-        case "Hypergeometric":
-          const N = 50;
-          const K = 20;
-          const n = 10;
-          distributionData = columnData.map((val) => jStat.hypergeometric.pdf(val, N, K, n));
-          calculatedAccuracy = K / N;
-          break;
-
-        default:
-          break;
-      }
-
-      setAccuracy(calculatedAccuracy.toFixed(4));
-      setChartData({
-        labels,
-        datasets: [
-          {
-            label: `${distribution} Distribution`,
-            data: distributionData,
-            fill: false,
-            borderColor: "rgba(75,192,192,1)",
-            tension: 0.1,
-          },
-        ],
-      });
+  const resetParameters = (distribution) => {
+    switch (distribution) {
+      case 'Normal':
+        setParameters({ mean: 0, stddev: 1, lambda: 1, n: 10, p: 0.5, min: 0, max: 1 });
+        break;
+      case 'Poisson':
+        setParameters({ mean: 0, stddev: 1, lambda: 1, n: 10, p: 0.5, min: 0, max: 1 });
+        break;
+      case 'Binomial':
+        setParameters({ mean: 0, stddev: 1, lambda: 1, n: 10, p: 0.5, min: 0, max: 1 });
+        break;
+      case 'Uniform':
+        setParameters({ mean: 0, stddev: 1, lambda: 1, n: 10, p: 0.5, min: 0, max: 1 });
+        break;
+      default:
+        break;
     }
   };
 
+  const generateData = () => {
+    let xValues = [];
+    let yValues = [];
+
+    switch (selectedDistribution) {
+      case 'Normal':
+        for (let x = -5; x <= 5; x += 0.1) {
+          xValues.push(x);
+          yValues.push(Normal.pdf(x, parameters.mean, parameters.stddev));
+        }
+        break;
+      case 'Poisson':
+        for (let x = 0; x <= 10; x++) {
+          xValues.push(x);
+          yValues.push(Poisson.pdf(x, parameters.lambda));
+        }
+        break;
+      case 'Binomial':
+        for (let x = 0; x <= parameters.n; x++) {
+          xValues.push(x);
+          yValues.push(Binomial.pdf(x, parameters.n, parameters.p));
+        }
+        break;
+      case 'Uniform':
+        for (let x = parameters.min; x <= parameters.max; x += 0.1) {
+          xValues.push(x);
+          yValues.push(Uniform.pdf(x, parameters.min, parameters.max));
+        }
+        break;
+      default:
+        break;
+    }
+
+    return { xValues, yValues };
+  };
+
+  const { xValues, yValues } = generateData();
+
+  const chartData = {
+    labels: xValues,
+    datasets: [
+      {
+        label: `${selectedDistribution} Distribution`,
+        data: yValues,
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        fill: true,
+      },
+    ],
+  };
+
   return (
-    <div className="distribution-analysis">
-      
-      <div className="controls">
-        <select onChange={handleColumnChange}>
-          <option value="">Select a column</option>
-          {columnHeaders.map((header) => (
-            <option key={header} value={header}>
-              {header}
-            </option>
-          ))}
+    <div>
+      <h1>Distribution Display</h1>
+      <div>
+        <label>Select Distribution:</label>
+        <select value={selectedDistribution} onChange={handleDistributionChange}>
+          <option value="Normal">Normal</option>
+          <option value="Poisson">Poisson</option>
+          <option value="Binomial">Binomial</option>
+          <option value="Uniform">Uniform</option>
         </select>
+      </div>
 
-        {selectedColumn && (
-          <>
-            
-            <select onChange={handleDistributionTypeChange}>
-              <option value="">Select Type</option>
-              <option value="Continuous">Continuous</option>
-              <option value="Discrete">Discrete</option>
-            </select>
+      <div>
+        {selectedDistribution === 'Normal' && (
+          <div>
+            <label>Mean:</label>
+            <input type="number" name="mean" value={parameters.mean} onChange={handleParamChange} />
+            <label>Standard Deviation:</label>
+            <input type="number" name="stddev" value={parameters.stddev} onChange={handleParamChange} />
+          </div>
+        )}
 
-            {selectedDistributionType === "Continuous" && (
-              <select onChange={handleDistributionChange}>
-                <option value="">Select Distribution</option>
-                {continuousDistributions.map((dist) => (
-                  <option key={dist} value={dist}>
-                    {dist}
-                  </option>
-                ))}
-              </select>
-            )}
+        {selectedDistribution === 'Poisson' && (
+          <div>
+            <label>Lambda:</label>
+            <input type="number" name="lambda" value={parameters.lambda} onChange={handleParamChange} />
+          </div>
+        )}
 
-            {selectedDistributionType === "Discrete" && (
-              <select onChange={handleDistributionChange}>
-                <option value="">Select Distribution</option>
-                {discreteDistributions.map((dist) => (
-                  <option key={dist} value={dist}>
-                    {dist} 
-                  </option>
-                ))}
-              </select>
-            )}
-          </>
+        {selectedDistribution === 'Binomial' && (
+          <div>
+            <label>Trials (n):</label>
+            <input type="number" name="n" value={parameters.n} onChange={handleParamChange} />
+            <label>Probability (p):</label>
+            <input type="number" name="p" value={parameters.p} onChange={handleParamChange} />
+          </div>
+        )}
+
+        {selectedDistribution === 'Uniform' && (
+          <div>
+            <label>Min:</label>
+            <input type="number" name="min" value={parameters.min} onChange={handleParamChange} />
+            <label>Max:</label>
+            <input type="number" name="max" value={parameters.max} onChange={handleParamChange} />
+          </div>
         )}
       </div>
 
-      {chartData && (
-        <div className="chart-container">
-          <Line
-            data={chartData}
-            options={{
-              responsive: true,
-              plugins: { title: { display: true, text: `${selectedDistribution} Distribution for ${selectedColumn} `} },
-            }}
-          />
-        </div>
-      )}
-
-      {accuracy && (
-        <div className="accuracy-container">
-          <h4>Accuracy: {accuracy}</h4>
-        </div>
-      )}
+      <Line data={chartData} />
     </div>
   );
 };
 
-export default DistributionAnalysis;
+export default DistributionDisplay;
