@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Normal, Poisson, Binomial, Uniform } from 'jStat';
+import { jStat } from 'jstat';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 
@@ -16,22 +16,22 @@ const DistributionDisplay = () => {
   };
 
   const handleParamChange = (event) => {
-    setParameters({ ...parameters, [event.target.name]: event.target.value });
+    setParameters({ ...parameters, [event.target.name]: parseFloat(event.target.value) });
   };
 
   const resetParameters = (distribution) => {
     switch (distribution) {
       case 'Normal':
-        setParameters({ mean: 0, stddev: 1, lambda: 1, n: 10, p: 0.5, min: 0, max: 1 });
+        setParameters({ mean: 0, stddev: 1 });
         break;
       case 'Poisson':
-        setParameters({ mean: 0, stddev: 1, lambda: 1, n: 10, p: 0.5, min: 0, max: 1 });
+        setParameters({ lambda: 1 });
         break;
       case 'Binomial':
-        setParameters({ mean: 0, stddev: 1, lambda: 1, n: 10, p: 0.5, min: 0, max: 1 });
+        setParameters({ n: 10, p: 0.5 });
         break;
       case 'Uniform':
-        setParameters({ mean: 0, stddev: 1, lambda: 1, n: 10, p: 0.5, min: 0, max: 1 });
+        setParameters({ min: 0, max: 1 });
         break;
       default:
         break;
@@ -46,25 +46,25 @@ const DistributionDisplay = () => {
       case 'Normal':
         for (let x = -5; x <= 5; x += 0.1) {
           xValues.push(x);
-          yValues.push(Normal.pdf(x, parameters.mean, parameters.stddev));
+          yValues.push(jStat.normal.pdf(x, parameters.mean, parameters.stddev));
         }
         break;
       case 'Poisson':
         for (let x = 0; x <= 10; x++) {
           xValues.push(x);
-          yValues.push(Poisson.pdf(x, parameters.lambda));
+          yValues.push(jStat.poisson.pdf(x, parameters.lambda));
         }
         break;
       case 'Binomial':
         for (let x = 0; x <= parameters.n; x++) {
           xValues.push(x);
-          yValues.push(Binomial.pdf(x, parameters.n, parameters.p));
+          yValues.push(jStat.binomial.pdf(x, parameters.n, parameters.p));
         }
         break;
       case 'Uniform':
         for (let x = parameters.min; x <= parameters.max; x += 0.1) {
           xValues.push(x);
-          yValues.push(Uniform.pdf(x, parameters.min, parameters.max));
+          yValues.push(jStat.uniform.pdf(x, parameters.min, parameters.max));
         }
         break;
       default:
