@@ -171,13 +171,13 @@ function Welcome({ setData, setColumnHeaders }) {
                 onClick={() => handlePredefinedDataset("Dataset 1")}
                 className="flex-1 bg-gradient-to-r from-green-600 to-green-500 text-white py-2 px-4 rounded-lg hover:from-green-700 hover:to-green-600 transition-colors duration-150"
               >
-                Load Dataset 1
+                Random Dataset 1
               </button>
               <button
                 onClick={() => handlePredefinedDataset("Dataset 2")}
                 className="flex-1 bg-gradient-to-r from-green-600 to-green-500 text-white py-2 px-4 rounded-lg hover:from-green-700 hover:to-green-600 transition-colors duration-150"
               >
-                Load Dataset 2
+                Random Dataset 2
               </button>
             </div>
           </div>
@@ -277,7 +277,7 @@ function UploadData({ setData, setColumnHeaders }) {
                 }}
                 className="flex-1 bg-gradient-to-r from-green-600 to-green-500 text-white py-2 px-4 rounded-lg hover:from-green-700 hover:to-green-600 transition-colors duration-150"
               >
-                Load {datasetName}
+                Random {datasetName}
               </button>
             ))}
           </div>
