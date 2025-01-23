@@ -13,6 +13,7 @@
     "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
     "chart.js": "^4.4.7",
+    "chartjs-adapter-date-fns": "^3.0.0",
     "chartjs-plugin-zoom": "^2.2.0",
     "d3": "^7.9.0",
     "file-saver": "^2.0.5",

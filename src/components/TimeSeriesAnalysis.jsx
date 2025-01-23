@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import * as ss from "simple-statistics";
-import  Papa  from "papaparse";
+import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import "../styles/TimeSeriesAnalysis.css";
 import { useDropzone } from 'react-dropzone';
@@ -102,7 +102,7 @@ const descriptions = {
       - You may start by plotting the original data to understand the natural behavior of the dataset before applying any statistical techniques.
     </p>
   `,
-  
+
   "Moving Average": `
     <b>Moving Average:</b> 
     <p><b>Use:</b> A technique used to smooth the time series data by averaging data points over a specific period. Helps identify trends by reducing noise from random fluctuations.</p>
@@ -394,8 +394,8 @@ function TimeSeriesAnalysis({ initialData = defaultData }) {
   const toggleExportOptions = () => {
     setShowExportOptions(!showExportOptions);
   };
-  
-  
+
+
   useEffect(() => {
     if (!dateColumn || !valueColumn) return;
 
@@ -537,9 +537,9 @@ function TimeSeriesAnalysis({ initialData = defaultData }) {
     setDifferencingData(differencing);
 
     console.log("New Chart Data: ", newChartData);
-}, [data, dateColumn, valueColumn, columnHeaders]);
+  }, [data, dateColumn, valueColumn, columnHeaders]);
 
-  
+
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -561,7 +561,7 @@ function TimeSeriesAnalysis({ initialData = defaultData }) {
       reader.readAsArrayBuffer(file);
     }
   };
-  
+
   const parseCSV = (csv) => {
     Papa.parse(csv, {
       header: true,
@@ -572,7 +572,7 @@ function TimeSeriesAnalysis({ initialData = defaultData }) {
       },
     });
   };
-  
+
   const parseExcel = (content) => {
     const workbook = XLSX.read(content, { type: "array" });
     const sheetName = workbook.SheetNames[0];
@@ -588,21 +588,21 @@ function TimeSeriesAnalysis({ initialData = defaultData }) {
     setData(rows);
     setColumnHeaders(headers); // Update column headers
   };
-  
+
   const parseJSON = (content) => {
     const parsedData = JSON.parse(content);
     setData(parsedData);
     setColumnHeaders(Object.keys(parsedData[0] || {})); // Update column headers
   };
-  
+
   const handleDateColumnChange = (e) => setDateColumn(e.target.value);
   const handleValueColumnChange = (e) => setValueColumn(e.target.value);
-  
+
   const handleAnalysisChange = (e) => {
     const selectedValue = e.target.value;
     setSelectedAnalysis(selectedValue);
     setShowForecastingOptions(selectedValue === "Forecast");
-  
+
     if (selectedValue !== "Forecast") {
       const ts = data.map(row => row[valueColumn]);
       const originalChartData = {
@@ -649,19 +649,19 @@ function TimeSeriesAnalysis({ initialData = defaultData }) {
       setChartData(originalChartData);
     }
   };
-  
+
   const performForecasting = (method) => {
     console.log(`Performing forecasting with method: ${method}`);
     if (!valueColumn) {
       alert('Please select a column to forecast.');
       return;
     }
-  
+
     const ts = data.map(row => row[valueColumn]);
     console.log("Time series data:", ts);
-  
+
     let forecastResult;
-  
+
     switch (method) {
       case 'ARIMA':
         forecastResult = forecastARIMA(ts, { p: 1, d: 1, q: 1 });
@@ -675,7 +675,7 @@ function TimeSeriesAnalysis({ initialData = defaultData }) {
       default:
         return;
     }
-  
+
     console.log("Forecast result:", forecastResult);
     const { predictions, confIntervals } = forecastResult;
     const chartLabels = data.map(row => row[dateColumn]).concat(Array.from({ length: 12 }, (_, i) => `Forecast ${i + 1}`));
@@ -711,15 +711,15 @@ function TimeSeriesAnalysis({ initialData = defaultData }) {
         },
       ],
     };
-  
+
     setChartData(newChartData);
   };
 
   const handleForecastClick = (method) => {
     performForecasting(method);
   };
-  
-  
+
+
   const renderSelectedAnalysis = () => {
     switch (selectedAnalysis) {
       case "Original Data":
@@ -952,7 +952,7 @@ function TimeSeriesAnalysis({ initialData = defaultData }) {
               </select>
             </label>
           </div>
-  
+
           {showForecastingOptions && (
             <div className="forecasting-options">
               <button onClick={() => performForecasting('ARIMA')}>ARIMA</button>
@@ -960,12 +960,12 @@ function TimeSeriesAnalysis({ initialData = defaultData }) {
               <button onClick={() => performForecasting('Prophet')}>Prophet</button>
             </div>
           )}
-  
+
           <div className="metrics">
             <p><strong>Mean Absolute Error (MAE):</strong> {mae}</p>
             <p><strong>Mean Squared Error (MSE):</strong> {mse}</p>
           </div>
-  
+
           <div className="export-container">
             <button onClick={toggleExportOptions}>Export</button>
             {showExportOptions && (
@@ -976,7 +976,7 @@ function TimeSeriesAnalysis({ initialData = defaultData }) {
               </div>
             )}
           </div>
-  
+
           {chartData ? (
             <>
               <div id="chart-container" className="chart-container">
@@ -991,7 +991,7 @@ function TimeSeriesAnalysis({ initialData = defaultData }) {
           ) : (
             <p>No data available to plot the graph.</p>
           )}
-  
+
           {!dateColumn || !valueColumn ? (
             <div className="explanations">
               <h3>Example Dataset</h3>
@@ -1029,8 +1029,8 @@ function TimeSeriesAnalysis({ initialData = defaultData }) {
       )}
     </div>
   );
-  
-  
+
+
 }
 
 export default TimeSeriesAnalysis;

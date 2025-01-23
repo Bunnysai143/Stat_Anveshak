@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { jStat } from 'jstat';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
+import zoomPlugin from 'chartjs-plugin-zoom';
+
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler, registerables } from 'chart.js';
 
 // Register necessary Chart.js components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler, zoomPlugin, ...registerables);
+
+
 
 const DistributionDisplay = () => {
   const [selectedDistribution, setSelectedDistribution] = useState('Normal');
@@ -24,7 +28,14 @@ const DistributionDisplay = () => {
     scaleGamma: 1,
   });
 
-  const maxPoints = 50; // Maximum number of points for smoother chart display and memory efficiency.
+  const chartRef = useRef(null);
+
+  const handleReset = () => {
+    if (chartRef.current) {
+      chartRef.current.resetZoom();
+    }
+  };
+  const maxPoints = 100; // Maximum number of points for smoother chart display and memory efficiency.
 
   // Distribution info descriptions for educational purposes
   const distributionsInfo = {
@@ -33,10 +44,10 @@ const DistributionDisplay = () => {
     Binomial: 'The Binomial distribution describes the number of successes in a fixed number of independent trials, each with the same probability of success. It is commonly used in situations like flipping a coin or taking a test with multiple-choice questions. Example: Number of heads when flipping a coin 10 times.',
     Uniform: 'The Uniform distribution is a type of distribution where every outcome is equally likely within a specified range. For example, rolling a fair die or selecting a random number between 1 and 10 follows a uniform distribution. Example: Rolling a fair die.',
     Exponential: 'The Exponential distribution models the time between events in a Poisson process, where events happen at a constant average rate. It is used in scenarios like the time between arrivals at a queue or the lifespan of an electronic device. Example: Time between arrivals of customers at a bank.',
-    Geometric: 'The Geometric distribution models the number of trials required to achieve the first success in a sequence of independent and identically distributed Bernoulli trials. It’s useful in situations like determining how many times you need to flip a coin until you get heads. Example: Number of coin flips to get the first heads.',
+    Geometric: 'The Geometric distribution models the number of trials required to achieve the first success in a sequence of independent and identically distributed Bernoulli trials. It\'s useful in situations like determining how many times you need to flip a coin until you get heads. Example: Number of coin flips to get the first heads.',
     Cauchy: 'The Cauchy distribution is a continuous probability distribution with heavy tails, often used in physics. Unlike the normal distribution, it has undefined mean and variance due to its heavy tails. Example: Measurement errors in physical systems.',
     LogNormal: 'The Log-Normal distribution is used when the logarithm of a random variable follows a normal distribution. It is commonly used in financial markets, where prices of stocks or assets often follow log-normal distributions. Example: Prices of stocks in financial markets.',
-    Beta: 'The Beta distribution is a continuous probability distribution defined on the interval [0, 1]. It is often used in Bayesian statistics to model distributions of probabilities, and it’s useful for modeling random variables that are constrained between 0 and 1, like percentages or proportions. Example: Probability of success in a test.',
+    Beta: 'The Beta distribution is a continuous probability distribution defined on the interval [0, 1]. It is often used in Bayesian statistics to model distributions of probabilities, and it\'s useful for modeling random variables that are constrained between 0 and 1, like percentages or proportions. Example: Probability of success in a test.',
     Gamma: 'The Gamma distribution is a continuous probability distribution with two parameters: shape (α) and scale (β). It is often used to model waiting times or the time until a certain number of events occur, such as the time until the third car arrives at a toll booth. Example: Time to complete a task or service.'
   };
 
@@ -105,7 +116,7 @@ const DistributionDisplay = () => {
       };
 
       const range = rangeLimit[selectedDistribution] || 10;
-      const step = range / maxPoints; // Dynamically calculate step size
+      const step = range / maxPoints;
 
       switch (selectedDistribution) {
         case 'Normal':
@@ -114,7 +125,7 @@ const DistributionDisplay = () => {
             return { xValues, yValues };
           }
           for (let x = -range; x <= range; x += step) {
-            xValues.push(x/2);
+            xValues.push(x / 2);
             yValues.push(jStat.normal.pdf(x, parameters.mean, parameters.stddev));
           }
           break;
@@ -172,9 +183,9 @@ const DistributionDisplay = () => {
             alert('Probability p must be between 0 and 1.');
             return { xValues, yValues };
           }
-          for (let x = 1; x <= range; x++) { // Geometric distribution is defined for x >= 1
+          for (let x = 1; x <= range; x++) {
             xValues.push(x);
-            const pdf = Math.pow(1 - parameters.p, x - 1) * parameters.p; // Calculate PMF manually
+            const pdf = Math.pow(1 - parameters.p, x - 1) * parameters.p;
             yValues.push(pdf);
           }
           break;
@@ -217,7 +228,7 @@ const DistributionDisplay = () => {
             alert('Shape and Scale must be greater than 0.');
             return { xValues, yValues };
           }
-          for (let x = 0; x <= range; x += step) { // Use 'step' instead of 'stepSize'
+          for (let x = 0; x <= range; x += step) {
             xValues.push(x);
             yValues.push(jStat.gamma.pdf(x, parameters.shape, parameters.scaleGamma));
           }
@@ -250,98 +261,478 @@ const DistributionDisplay = () => {
   };
 
 
-  
+
   return (
-    <div>
-      <h2>Select Distribution</h2>
-      <select value={selectedDistribution} onChange={handleDistributionChange}>
-        {Object.keys(distributionsInfo).map((dist) => (
-          <option key={dist} value={dist}>
-            {dist}
-          </option>
-        ))}
-      </select>
-      
+    <div className="container mx-auto px-6 py-10 max-w-5xl">
+      <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+        <div className="p-8 bg-gradient-to-r from-blue-50 to-blue-100">
+          <h2 className="text-3xl font-extrabold text-gray-800 tracking-wide">
+            Probability Distribution Explorer
+          </h2>
+        </div>
 
-      <div>
-        {selectedDistribution === 'Normal' && (
-          <div>
-            <label>Mean:</label>
-            <input type="number" name="mean" value={parameters.mean} onChange={handleParamChange} />
-            <label>Standard Deviation:</label>
-            <input type="number" name="stddev" value={parameters.stddev} onChange={handleParamChange} />
+        <div className="p-8 space-y-8">
+          {/* Distribution Selection */}
+          <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6">
+            <label className="text-lg font-semibold text-gray-700 w-full sm:w-auto">
+              Select Distribution:
+            </label>
+            <select
+              value={selectedDistribution}
+              onChange={handleDistributionChange}
+              className="w-full sm:w-72 p-3 bg-white border-2 border-blue-200 rounded-lg 
+              focus:outline-none focus:ring-2 focus:ring-blue-400 
+              transition duration-300 ease-in-out hover:border-blue-300
+              text-gray-700 font-medium"
+            >
+              {Object.keys(distributionsInfo).map((dist) => (
+                <option
+                  key={dist}
+                  value={dist}
+                  className="hover:bg-blue-100 p-2"
+                >
+                  {dist}
+                </option>
+              ))}
+            </select>
           </div>
-        )}
-        {selectedDistribution === 'Poisson' && (
-          <div>
-            <label>Lambda:</label>
-            <input type="number" name="lambda" value={parameters.lambda} onChange={handleParamChange} />
+
+          {/* Parameter Inputs with Enhanced Design */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-blue-50 p-6 rounded-xl">
+            {selectedDistribution === 'Normal' && (
+              <>
+                <div className="space-y-2">
+                  <label className="block text-md font-medium text-gray-700">
+                    Mean
+                    <span className="text-sm text-gray-500 ml-2">
+                      (Central tendency)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    name="mean"
+                    value={parameters.mean}
+                    onChange={handleParamChange}
+                    className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+                    focus:outline-none focus:ring-2 focus:ring-blue-400 
+                    transition duration-300 ease-in-out"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-md font-medium text-gray-700">
+                    Standard Deviation
+                    <span className="text-sm text-gray-500 ml-2">
+                      (Spread of data)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    name="stddev"
+                    value={parameters.stddev}
+                    onChange={handleParamChange}
+                    className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+                    focus:outline-none focus:ring-2 focus:ring-blue-400 
+                    transition duration-300 ease-in-out"
+                  />
+                </div>
+              </>
+            )}
+            {selectedDistribution === 'Poisson' && (
+              <div className="col-span-full space-y-2">
+                <label className="block text-md font-medium text-gray-700">
+                  Lambda (Rate)
+                  <span className="text-sm text-gray-500 ml-2">
+                    (Average number of events)
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  name="lambda"
+                  value={parameters.lambda}
+                  onChange={handleParamChange}
+                  className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+                  focus:outline-none focus:ring-2 focus:ring-blue-400 
+                  transition duration-300 ease-in-out"
+                />
+              </div>
+            )}
+            {selectedDistribution === 'Binomial' && (
+              <>
+                <div className="space-y-2">
+                  <label className="block text-md font-medium text-gray-700">
+                    Number of Trials (n)
+                    <span className="text-sm text-gray-500 ml-2">
+                      (Total attempts)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    name="n"
+                    value={parameters.n}
+                    onChange={handleParamChange}
+                    className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+                    focus:outline-none focus:ring-2 focus:ring-blue-400 
+                    transition duration-300 ease-in-out"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-md font-medium text-gray-700">
+                    Probability of Success (p)
+                    <span className="text-sm text-gray-500 ml-2">
+                      (0-1 range)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    name="p"
+                    value={parameters.p}
+                    onChange={handleParamChange}
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+                    focus:outline-none focus:ring-2 focus:ring-blue-400 
+                    transition duration-300 ease-in-out"
+                  />
+                </div>
+              </>
+            )}
+            {selectedDistribution === 'Uniform' && (
+              <>
+                <div className="space-y-2">
+                  <label className="block text-md font-medium text-gray-700">
+                    Minimum Value
+                    <span className="text-sm text-gray-500 ml-2">
+                      (Lower bound)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    name="min"
+                    value={parameters.min}
+                    onChange={handleParamChange}
+                    className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+                    focus:outline-none focus:ring-2 focus:ring-blue-400 
+                    transition duration-300 ease-in-out"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-md font-medium text-gray-700">
+                    Maximum Value
+                    <span className="text-sm text-gray-500 ml-2">
+                      (Upper bound)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    name="max"
+                    value={parameters.max}
+                    onChange={handleParamChange}
+                    className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+                    focus:outline-none focus:ring-2 focus:ring-blue-400 
+                    transition duration-300 ease-in-out"
+                  />
+                </div>
+              </>
+            )}
+            {selectedDistribution === 'Exponential' && (
+              <div className="col-span-full space-y-2">
+                <label className="block text-md font-medium text-gray-700">
+                  Rate
+                  <span className="text-sm text-gray-500 ml-2">
+                    (Average rate of events)
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  name="rate"
+                  value={parameters.rate}
+                  onChange={handleParamChange}
+                  className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+      focus:outline-none focus:ring-2 focus:ring-blue-400 
+      transition duration-300 ease-in-out"
+                />
+              </div>
+            )}
+
+            {selectedDistribution === 'Geometric' && (
+              <div className="col-span-full space-y-2">
+                <label className="block text-md font-medium text-gray-700">
+                  Probability of Success (p)
+                  <span className="text-sm text-gray-500 ml-2">
+                    (Probability of success in each trial)
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  name="p"
+                  value={parameters.p}
+                  onChange={handleParamChange}
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+      focus:outline-none focus:ring-2 focus:ring-blue-400 
+      transition duration-300 ease-in-out"
+                />
+              </div>
+            )}
+
+            {selectedDistribution === 'Cauchy' && (
+              <>
+                <div className="space-y-2">
+                  <label className="block text-md font-medium text-gray-700">
+                    Location (Mean)
+                    <span className="text-sm text-gray-500 ml-2">
+                      (Center of distribution)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    name="mean"
+                    value={parameters.mean}
+                    onChange={handleParamChange}
+                    className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+        focus:outline-none focus:ring-2 focus:ring-blue-400 
+        transition duration-300 ease-in-out"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-md font-medium text-gray-700">
+                    Scale
+                    <span className="text-sm text-gray-500 ml-2">
+                      (Width of distribution)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    name="scale"
+                    value={parameters.scale}
+                    onChange={handleParamChange}
+                    className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+        focus:outline-none focus:ring-2 focus:ring-blue-400 
+        transition duration-300 ease-in-out"
+                  />
+                </div>
+              </>
+            )}
+
+            {selectedDistribution === 'LogNormal' && (
+              <>
+                <div className="space-y-2">
+                  <label className="block text-md font-medium text-gray-700">
+                    Mean
+                    <span className="text-sm text-gray-500 ml-2">
+                      (Log-transformed mean)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    name="mean"
+                    value={parameters.mean}
+                    onChange={handleParamChange}
+                    className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+        focus:outline-none focus:ring-2 focus:ring-blue-400 
+        transition duration-300 ease-in-out"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-md font-medium text-gray-700">
+                    Standard Deviation
+                    <span className="text-sm text-gray-500 ml-2">
+                      (Log-transformed standard deviation)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    name="stddev"
+                    value={parameters.stddev}
+                    onChange={handleParamChange}
+                    className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+        focus:outline-none focus:ring-2 focus:ring-blue-400 
+        transition duration-300 ease-in-out"
+                  />
+                </div>
+              </>
+            )}
+
+            {selectedDistribution === 'Beta' && (
+              <>
+                <div className="space-y-2">
+                  <label className="block text-md font-medium text-gray-700">
+                    Alpha
+                    <span className="text-sm text-gray-500 ml-2">
+                      (First shape parameter)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    name="alpha"
+                    value={parameters.alpha}
+                    onChange={handleParamChange}
+                    className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+        focus:outline-none focus:ring-2 focus:ring-blue-400 
+        transition duration-300 ease-in-out"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-md font-medium text-gray-700">
+                    Beta
+                    <span className="text-sm text-gray-500 ml-2">
+                      (Second shape parameter)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    name="beta"
+                    value={parameters.beta}
+                    onChange={handleParamChange}
+                    className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+        focus:outline-none focus:ring-2 focus:ring-blue-400 
+        transition duration-300 ease-in-out"
+                  />
+                </div>
+              </>
+            )}
+
+            {selectedDistribution === 'Gamma' && (
+              <>
+                <div className="space-y-2">
+                  <label className="block text-md font-medium text-gray-700">
+                    Shape
+                    <span className="text-sm text-gray-500 ml-2">
+                      (Shape parameter)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    name="shape"
+                    value={parameters.shape}
+                    onChange={handleParamChange}
+                    className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+        focus:outline-none focus:ring-2 focus:ring-blue-400 
+        transition duration-300 ease-in-out"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="block text-md font-medium text-gray-700">
+                    Scale
+                    <span className="text-sm text-gray-500 ml-2">
+                      (Scale parameter)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    name="scaleGamma"
+                    value={parameters.scaleGamma}
+                    onChange={handleParamChange}
+                    className="w-full p-3 bg-white border-2 border-blue-200 rounded-lg 
+        focus:outline-none focus:ring-2 focus:ring-blue-400 
+        transition duration-300 ease-in-out"
+                  />
+                </div>
+              </>
+            )}
           </div>
-        )}
-        {selectedDistribution === 'Binomial' && (
-          <div>
-            <label>Number of Trials (n):</label>
-            <input type="number" name="n" value={parameters.n} onChange={handleParamChange} />
-            <label>Probability of Success (p):</label>
-            <input type="number" name="p" value={parameters.p} onChange={handleParamChange} />
+
+          {/* Chart Section */}
+          <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100 relative max-w-full mx-auto">
+            {/* Chart with Zoom and Pan */}
+            <div className="chart-container mb-4 sm:mb-6">
+              <Line
+                id="chart-id"
+                data={chartData}
+                ref={chartRef}
+                options={{
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  plugins: {
+                    title: {
+                      display: true,
+                      text: `${selectedDistribution} Distribution Visualization`,
+                      font: {
+                        size: 18,
+                        weight: 'bold',
+                      },
+                      color: '#2c3e50',
+                    },
+                    zoom: {
+                      pan: {
+                        enabled: true,
+                        mode: 'x',
+                      },
+                      zoom: {
+                        wheel: {
+                          enabled: true,
+                        },
+                        pinch: {
+                          enabled: true,
+                        },
+                        mode: 'x',
+                      },
+                    },
+                  },
+                  scales: {
+                    x: {
+                      title: {
+                        display: true,
+                        text: 'Value',
+                        color: '#7f8c8d',
+                      },
+                    },
+                    y: {
+                      title: {
+                        display: true,
+                        text: 'Probability Density',
+                        color: '#7f8c8d',
+                      },
+                    },
+                  },
+                }}
+                height={500} // Adjusted for responsiveness
+              />
+            </div>
+
+            {/* Control Buttons */}
+            <div className="absolute top-4 right-4 flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
+              {/* Reset Zoom Button */}
+              <button
+                onClick={handleReset}
+                className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 w-full sm:w-auto text-center mb-2 sm:mb-0"
+              >
+                Reset Zoom
+              </button>
+
+              {/* Download Button */}
+              <button
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow w-full sm:w-auto text-center"
+                onClick={() => {
+                  const canvas = document.querySelector('canvas');
+                  if (canvas) {
+                    const link = document.createElement('a');
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = 'chart.png';
+                    link.click();
+                  }
+                }}
+              >
+                Download
+              </button>
+            </div>
           </div>
-        )}
-        {selectedDistribution === 'Uniform' && (
-          <div>
-            <label>Min:</label>
-            <input type="number" name="min" value={parameters.min} onChange={handleParamChange} />
-            <label>Max:</label>
-            <input type="number" name="max" value={parameters.max} onChange={handleParamChange} />
+
+          {/* Information Section */}
+          <div className="bg-gradient-to-r from-blue-50 to-blue-100 
+          border-l-4 border-blue-400 p-6 rounded-r-xl space-y-4 shadow-md">
+            <h3 className="text-xl font-bold text-gray-800 mb-2">
+              Distribution Insights
+            </h3>
+            <p className="text-md text-gray-700 leading-relaxed">
+              {distributionsInfo[selectedDistribution]}
+            </p>
           </div>
-        )}
-        {selectedDistribution === 'Exponential' && (
-          <div>
-            <label>Rate:</label>
-            <input type="number" name="rate" value={parameters.rate} onChange={handleParamChange} />
-          </div>
-        )}
-        {selectedDistribution === 'Geometric' && (
-          <div>
-            <label>Probability (p):</label>
-            <input type="number" name="p" value={parameters.p} onChange={handleParamChange} />
-          </div>
-        )}
-        {selectedDistribution === 'Cauchy' && (
-          <div>
-            <label>Mean:</label>
-            <input type="number" name="mean" value={parameters.mean} onChange={handleParamChange} />
-            <label>Scale:</label>
-            <input type="number" name="scale" value={parameters.scale} onChange={handleParamChange} />
-          </div>
-        )}
-        {selectedDistribution === 'LogNormal' && (
-          <div>
-            <label>Mean:</label>
-            <input type="number" name="mean" value={parameters.mean} onChange={handleParamChange} />
-            <label>Standard Deviation:</label>
-            <input type="number" name="stddev" value={parameters.stddev} onChange={handleParamChange} />
-          </div>
-        )}
-        {selectedDistribution === 'Beta' && (
-          <div>
-            <label>Alpha:</label>
-            <input type="number" name="alpha" value={parameters.alpha} onChange={handleParamChange} />
-            <label>Beta:</label>
-            <input type="number" name="beta" value={parameters.beta} onChange={handleParamChange} />
-          </div>
-        )}
-        {selectedDistribution === 'Gamma' && (
-          <div>
-            <label>Shape:</label>
-            <input type="number" name="shape" value={parameters.shape} onChange={handleParamChange} />
-            <label>Scale:</label>
-            <input type="number" name="scaleGamma" value={parameters.scaleGamma} onChange={handleParamChange} />
-          </div>
-        )}
+        </div>
       </div>
-
-      <Line data={chartData} options={{ responsive: true, plugins: { title: { display: true, text: `${selectedDistribution} Distribution` } } }} />
-      <p>{distributionsInfo[selectedDistribution]}</p>
     </div>
   );
 };
