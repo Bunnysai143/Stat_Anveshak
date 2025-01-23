@@ -7,7 +7,7 @@ import "../styles/TimeSeriesAnalysis.css";
 import { useDropzone } from 'react-dropzone';
 import { toPng, toJpeg, toSvg } from 'html-to-image';
 import { saveAs } from 'file-saver';
-
+import 'chartjs-adapter-date-fns';
 
 const calculateMovingAverage = (data, windowSize = 5) => {
   return data.map((value, index, arr) => {
@@ -76,6 +76,8 @@ const exportAsImage = (format) => {
       break;
   }
 };
+
+
 
 
 const descriptions = {
@@ -319,21 +321,26 @@ const isStationary = (data) => {
 };
 
 // Utility function to check if a column is relevant to time series analysis
-const isRelevantColumn = (columnHeader, data) => {
+const isTimeSeries = (columnHeader, data) => {
   const dateFormats = [
-    /^\d{4}-\d{2}-\d{2}$/,   // YYYY-MM-DD
+    /^\d{4}-\d{2}-\d{2}$/, // YYYY-MM-DD
     /^\d{2}\/\d{2}\/\d{4}$/, // MM/DD/YYYY
     /^\d{4}\/\d{2}\/\d{2}$/, // YYYY/MM/DD
-    /^\d{2}-\d{2}-\d{4}$/,   // DD-MM-YYYY
+    /^\d{2}-\d{2}-\d{4}$/, // DD-MM-YYYY
     /^\d{2}\.\d{2}\.\d{4}$/, // DD.MM.YYYY
   ];
 
-  const isDateColumn = data.some((row) => dateFormats.some((format) => format.test(row[columnHeader])));
+  const isDateColumn = data.some((row) =>
+    dateFormats.some((format) => format.test(row[columnHeader]))
+  );
 
-  const isValueColumn = data.every((row) => typeof row[columnHeader] === "number" && !isNaN(row[columnHeader]));
+  const isValueColumn = data.every(
+    (row) => typeof row[columnHeader] === "number" && !isNaN(row[columnHeader])
+  );
 
   return isDateColumn || isValueColumn;
 };
+
 
 const defaultData = [
   { date: "2023-01-01", value: 50 },
@@ -707,6 +714,11 @@ function TimeSeriesAnalysis({ initialData = defaultData }) {
   
     setChartData(newChartData);
   };
+
+  const handleForecastClick = (method) => {
+    performForecasting(method);
+  };
+  
   
   const renderSelectedAnalysis = () => {
     switch (selectedAnalysis) {
@@ -1022,33 +1034,37 @@ function TimeSeriesAnalysis({ initialData = defaultData }) {
 }
 
 export default TimeSeriesAnalysis;
-
-const forecastARIMA = (ts, { p, d, q }) => {
-  // Placeholder logic for ARIMA forecasting
-  const predictions = ts.map(value => value + Math.random());
+const forecastARIMA = (values, params) => {
+  // Placeholder for ARIMA forecasting logic
+  const predictions = [...values, ...values.slice(-12)]; // Dummy predictions
   const confIntervals = {
-    lower: ts.map(value => value - Math.random()),
-    upper: ts.map(value => value + Math.random())
+    lower: predictions.map(val => val - Math.random() * 2), // Dummy lower bound
+    upper: predictions.map(val => val + Math.random() * 2)  // Dummy upper bound
   };
   return { predictions, confIntervals };
 };
 
-const forecastExpSmoothing = (ts, options) => {
-  // Placeholder logic for Exponential Smoothing forecasting
-  const predictions = ts.map(value => value + Math.random());
+const forecastExpSmoothing = (values, params) => {
+  // Placeholder for Exponential Smoothing logic
+  const alpha = 0.5; // Example smoothing factor
+  const predictions = [values[0]];
+  for (let i = 1; i < values.length + 12; i++) {
+    const value = values[i] !== undefined ? values[i] : predictions[i - 1];
+    predictions.push(alpha * value + (1 - alpha) * predictions[i - 1]);
+  }
   const confIntervals = {
-    lower: ts.map(value => value - Math.random()),
-    upper: ts.map(value + Math.random())
+    lower: predictions.map(val => val - Math.random() * 2), // Dummy lower bound
+    upper: predictions.map(val => val + Math.random() * 2)  // Dummy upper bound
   };
   return { predictions, confIntervals };
 };
 
-const forecastProphet = (ts) => {
-  // Placeholder logic for Prophet forecasting
-  const predictions = ts.map(value => value + Math.random());
+const forecastProphet = (values) => {
+  // Placeholder for Prophet forecasting logic
+  const predictions = [...values, ...values.slice(-12)]; // Dummy predictions
   const confIntervals = {
-    lower: ts.map(value => value - Math.random()),
-    upper: ts.map(value + Math.random())
+    lower: predictions.map(val => val - Math.random() * 2), // Dummy lower bound
+    upper: predictions.map(val => val + Math.random() * 2)  // Dummy upper bound
   };
   return { predictions, confIntervals };
 };
