@@ -158,16 +158,21 @@ const CoreStatistics = ({ data, columnHeaders }) => {
 
   {selectedColumn && (
     <div className="space-y-6">
-      <h3 className="text-2xl font-semibold text-gray-900">Statistics for {selectedColumn}</h3>
-      <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
+      <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 text-center sm:text-left">
+        Statistics for {selectedColumn}
+      </h3>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {Object.keys(stats).map((key) => (
           <div
             key={key}
-            className="p-4 border border-gray-200 text-gray-800 rounded-lg shadow-sm hover:bg-indigo-50 cursor-pointer"
+            className="p-4 border border-gray-200 text-gray-800 rounded-lg shadow-sm hover:bg-indigo-50 cursor-pointer transition duration-200 ease-in-out transform hover:scale-105"
             onClick={() => toggleInfo(key)}
           >
-            <p className="text-lg font-medium">{key.charAt(0).toUpperCase() + key.slice(1)}</p>
-            <p className="text-sm text-gray-600">{stats[key]}</p>
+            <p className="text-lg font-medium text-center sm:text-left">
+              {key.charAt(0).toUpperCase() + key.slice(1)}
+            </p>
+            <p className="text-sm text-gray-600 text-center sm:text-left">{stats[key]}</p>
             {selectedStat === key && (
               <div className="mt-2 text-sm text-gray-700">
                 <p>
@@ -184,6 +189,7 @@ const CoreStatistics = ({ data, columnHeaders }) => {
     </div>
   )}
 </div>
+
 
   );
 };

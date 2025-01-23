@@ -68,71 +68,72 @@ const RawDataTable = ({ data, columnHeaders, setData }) => {
   );
 
   return (
-    <div className="flex flex-col h-full max-h-full">
-    {/* Search and Button Container */}
-    <div className="flex-none p-4 space-y-4">
-      <input
-        type="text"
-        placeholder="Search..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-      />
-      <button
-        onClick={downloadCSV}
-        className="w-full px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-      >
-        Download Modified Dataset
-      </button>
-    </div>
+<div className="flex flex-col h-full max-h-full">
+  {/* Search and Button Container */}
+  <div className="flex-none p-4 space-y-4">
+    <input
+      type="text"
+      placeholder="Search..."
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+    />
+    <button
+      onClick={downloadCSV}
+      className="w-full px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+    >
+      Download Modified Dataset
+    </button>
+  </div>
 
-    {/* Table Container */}
-    <div className="flex-grow overflow-auto border rounded-lg">
-      <table className="min-w-full border-collapse bg-white">
-        <thead className="sticky top-0 bg-gray-50 shadow-sm">
-          <tr>
-            {columnHeaders.map((header, colIndex) => (
-              <th
+  {/* Table Container */}
+  <div className="flex-grow overflow-auto border rounded-lg">
+    <table className="min-w-full border-collapse bg-white text-xs md:text-sm">
+      <thead className="sticky top-0 bg-gray-50 shadow-sm">
+        <tr>
+          {columnHeaders.map((header, colIndex) => (
+            <th
+              key={colIndex}
+              className={`px-2 md:px-4 py-2 text-left font-medium text-gray-700 cursor-pointer whitespace-nowrap ${
+                sortConfig.colIndex === colIndex ? "bg-indigo-100" : ""
+              }`}
+              onClick={() => handleSort(colIndex)}
+            >
+              <div className="flex items-center space-x-1">
+                <span>{header}</span>
+                <span className="text-xs">
+                  {sortConfig.colIndex === colIndex
+                    ? sortConfig.direction === "ascending"
+                      ? "▲"
+                      : "▼"
+                    : "↕"}
+                </span>
+              </div>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-gray-200">
+        {filteredData.map((row, rowIndex) => (
+          <tr key={rowIndex} className="hover:bg-gray-50">
+            {row.map((cell, colIndex) => (
+              <td
                 key={colIndex}
-                className={`px-4 py-2 text-left text-sm font-medium text-gray-700 cursor-pointer whitespace-nowrap ${
-                  sortConfig.colIndex === colIndex ? "bg-indigo-100" : ""
-                }`}
-                onClick={() => handleSort(colIndex)}
+                contentEditable
+                onBlur={(e) => handleCellEdit(rowIndex, colIndex, e.target.innerText.trim())}
+                onKeyDown={(e) => handleKeyDown(e, rowIndex, colIndex)}
+                className="px-2 md:px-4 py-2 text-gray-700 cursor-pointer truncate"
               >
-                <div className="flex items-center space-x-1">
-                  <span>{header}</span>
-                  <span className="text-xs">
-                    {sortConfig.colIndex === colIndex
-                      ? sortConfig.direction === "ascending"
-                        ? "▲"
-                        : "▼"
-                      : "↕"}
-                  </span>
-                </div>
-              </th>
+                {cell}
+              </td>
             ))}
           </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200">
-          {filteredData.map((row, rowIndex) => (
-            <tr key={rowIndex} className="hover:bg-gray-50">
-              {row.map((cell, colIndex) => (
-                <td
-                  key={colIndex}
-                  contentEditable
-                  onBlur={(e) => handleCellEdit(rowIndex, colIndex, e.target.innerText.trim())}
-                  onKeyDown={(e) => handleKeyDown(e, rowIndex, colIndex)}
-                  className="px-4 py-2 text-sm text-gray-700 cursor-pointer max-w-xs truncate"
-                >
-                  {cell}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </tbody>
+    </table>
   </div>
+</div>
+
 );
 };
 
