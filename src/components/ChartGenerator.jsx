@@ -114,7 +114,16 @@ const ChartGenerator = ({ data, columnHeaders }) => {
       "#F39C12",
     ],
     Scatter: "#f39c12",
-    Bubble: "#8e44ad",
+    Bubble: [
+      "#FF5733",
+      "#33FF57",
+      "#3357FF",
+      "#F5A623",
+      "#8E44AD",
+      "#1F77B4",
+      "#D35400",
+      "#F39C12",
+    ],
     PolarArea: [
       "#FF5733",
       "#33FF57",
@@ -134,10 +143,16 @@ const ChartGenerator = ({ data, columnHeaders }) => {
     datasets: [
       {
         label: yColumn,
-        data: processedData.map((row) =>
-          showUniqueValues ? row.y : row[columnHeaders.indexOf(yColumn)]
-        ),
-        fill: false,
+        data:
+          chartType === "Bubble"
+            ? processedData.map((row) => ({
+              x: showUniqueValues ? row.x : row[columnHeaders.indexOf(xColumn)],
+              y: showUniqueValues ? row.y : row[columnHeaders.indexOf(yColumn)],
+              r: Math.random() * 30 + 5, // Example radius, adjust as needed
+            }))
+            : processedData.map((row) =>
+              showUniqueValues ? row.y : row[columnHeaders.indexOf(yColumn)]
+            ),
         borderColor: chartColors[chartType],
         backgroundColor:
           chartType === "Pie" || chartType === "Doughnut"
@@ -188,16 +203,16 @@ const ChartGenerator = ({ data, columnHeaders }) => {
     scales:
       chartType === "Radar"
         ? {
-            r: {
-              min: 0,
-              max:
-                Math.max(
-                  ...processedData.map((row) =>
-                    showUniqueValues ? row.y : row[columnHeaders.indexOf(yColumn)]
-                  )
-                ) + 10,
-            },
-          }
+          r: {
+            min: 0,
+            max:
+              Math.max(
+                ...processedData.map((row) =>
+                  showUniqueValues ? row.y : row[columnHeaders.indexOf(yColumn)]
+                )
+              ) + 10,
+          },
+        }
         : {},
     plugins: {
       zoom: {

@@ -2,6 +2,7 @@ import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, BarChart, Bar, ScatterChart, Scatter, ResponsiveContainer } from 'recharts';
 import { Upload, Download, Table as TableIcon, Loader } from 'lucide-react';
 import html2canvas from 'html2canvas';
+import { jStat } from 'jstat';
 
 const InferentialStatistics = ({ data: initialData, columnHeaders: initialHeaders }) => {
   const [activeTab, setActiveTab] = useState('hypothesis');
@@ -82,7 +83,7 @@ const InferentialStatistics = ({ data: initialData, columnHeaders: initialHeader
           results = {
             ...results,
             zScore,
-            pValue: 2 * (1 - stats.normalCDF(Math.abs(zScore)))
+            pValue: 2 * (1 - jStat.normal.cdf(Math.abs(zScore), 0, 1)) // Use jStat CDF function
           };
           break;
         }
