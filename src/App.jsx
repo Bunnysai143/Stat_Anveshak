@@ -331,7 +331,7 @@ function App() {
   }, [columnHeaders]);
 
   return (
-    <Router>
+    <Router basename='/'>
       <Routes>
       <Route path="/" element={<Layout data={data} setData={setData} columnHeaders={columnHeaders} setColumnHeaders={setColumnHeaders} />}>
           <Route index element={<Welcome setData={setData} setColumnHeaders={setColumnHeaders} />} />
