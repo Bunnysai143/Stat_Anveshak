@@ -4,7 +4,7 @@ Virat Kohli,140,2184,850,336,113
 Rohit Sharma,77,4850,247,414,97
 MS Dhoni,95,4929,111,95,109
 AB de Villiers,72,4244,848,400,50
-Chris Gayle,71,4725,912,413,39}
+Chris Gayle,71,4725,912,413,39
 David Warner,61,1527,860,249,120
 Kane Williamson,130,3037,705,325,138
 Andre Russell,108,2259,401,314,44
